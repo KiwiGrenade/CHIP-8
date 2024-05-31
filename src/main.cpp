@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <string>
+
 int main()
 {
     std::string welcomeMessage {"CHIP-8 will be here soon!"};
