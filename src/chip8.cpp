@@ -43,7 +43,48 @@ void Chip8::loadFile(std::string filename) {
 }
 
 void Chip8::emulateCycle() {
+    opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
     
+    // 1010 0000 0000 0000 & 
+    // 1111 0000 0000 0000 =
+    // 1010 0000 0000 0000
+    switch(opcode & 0xF000) { // check first 4 bits
+        case 0x0000: // 0000 0000 0000 0000 
+            if((opcode & 0x0F00) == 0x0000) {
+                switch (opcode & 0x000F) { // check last 4 bits
+                case 0x0000: // 0x00E0: Clear screen
+                    screen->clear();
+                    ++pc;
+                break;
+
+                case 0x00EE: // 0x00EE: Return from subroutine
+                break;
+
+                default:
+                    printf("Unknown opcode [0x0000]: 0x%X\n", opcode);
+                }
+                break;
+            }
+            else {
+
+            }
+            break; 
+        case 0xA000: // ANNN
+            I = opcode & 0x0FFF;
+            pc += 2;
+            break;
+        default:
+            printf("Unknown opcode [0x0000]: 0x%X\n", opcode);
+    }
+
+    if(delay_timer > 0)
+        --delay_timer;
+
+    if(sound_timer > 0) {
+        if(sound_timer == 1)
+            std::cout << "BEEP!\n";
+        --sound_timer;
+    }
 }
 
 
