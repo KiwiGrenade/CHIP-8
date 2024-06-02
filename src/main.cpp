@@ -1,9 +1,45 @@
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "chip8.hpp"
 
 int main()
 {
-    std::string welcomeMessage {"CHIP-8 will be here soon!"};
+    /* Game loop example:
+     *  7. int main(int argc, char **argv) 
+     *  8. {
+     *  9.   // Set up render system and register input callbacks
+     *  10.   setupGraphics();
+     *  11.   setupInput();
+     *  12. 
+     *  13.   // Initialize the Chip8 system and load the game into the memory  
+     *  14.   myChip8.initialize();
+     *  15.   myChip8.loadGame("pong");
+     *  16. 
+     *  17.   // Emulation loop
+     *  18.   for(;;)
+     *  19.   {
+     *  20.     // Emulate one cycle
+     *  21.     myChip8.emulateCycle();
+     *  22. 
+     *  23.     // If the draw flag is set, update the screen
+     *  24.     if(myChip8.drawFlag)
+     *  25.       drawGraphics();
+     *  26. 
+     *  27.     // Store key press state (Press and Release)
+     *  28.     myChip8.setKeys();	
+     *  29.   }
+     *  30. 
+     *  31.   return 0;
+     *  32. }
+     * */
+
+    Chip8 myChip8;
+    myChip8.initialize();
+    myChip8.loadFile("../chip8-test-rom/test_opcode.ch8");
+
+    // while(true) {}
+
+    std::string welcomeMessage {"CHIP-8 will be here soon! WORK IN PROGRESS"};
     std::string fontFileName {"../assets/fonts/BigBlueTerm437NerdFont-Regular.ttf"};
 
     sf::Font font;
