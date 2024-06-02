@@ -3,6 +3,7 @@
 
 #include "components.hpp"
 #include <memory>
+
 class Chip8 {
 private:
     unsigned short pc;
