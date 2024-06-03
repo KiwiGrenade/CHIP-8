@@ -1,6 +1,7 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
+#include <SFML/Graphics.hpp>
 #include <memory>
 #include <array>
 
@@ -32,6 +33,7 @@ struct Screen : Component {
     static constexpr unsigned short size = 64 * 32;
     typedef std::array<bool, size> screen_type;
     std::unique_ptr<screen_type> screen;
+
     Screen(){
         screen = std::make_unique<screen_type>();
     }

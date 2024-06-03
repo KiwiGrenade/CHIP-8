@@ -51,7 +51,7 @@ int main()
     sf::Text text(welcomeMessage, font, 64);
     text.setFillColor(sf::Color::Green);
 
-    auto window = sf::RenderWindow{ { 1920u, 1080u }, welcomeMessage};
+    auto window = sf::RenderWindow{ { 640u, 320u}, welcomeMessage};
     window.setFramerateLimit(144);
 
     while (window.isOpen())
