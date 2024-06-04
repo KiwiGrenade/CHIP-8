@@ -65,7 +65,11 @@ int main()
         }
 
         window.clear();
-        window.draw(text);
+        // window.draw(text);
+        for(sf::RectangleShape pixel : *myChip8.screen->board) {
+            window.draw(pixel);
+        }
+        // window.draw((*myChip8.screen->board)[0]);
         window.display();
     }
 }

@@ -2,6 +2,7 @@
 #define COMPONENTS_HPP
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
 #include <array>
 
@@ -29,17 +30,39 @@ struct Memory : Component {
     ~Memory() = default;
 };
 
+//TODO: tidy it later
 struct Screen : Component {
-    static constexpr unsigned short size = 64 * 32;
+    static constexpr unsigned short height = 32;
+    static constexpr unsigned short width = 64;
+    static constexpr float pixel_dim = 10.f;
+    static constexpr unsigned short size = width * height; // 64p wide, 32p high
+
+    const sf::Color OFF = sf::Color::Black;
+    const sf::Color ON = sf::Color::White;
+
+    typedef std::array<sf::RectangleShape, size> board_type;
     typedef std::array<bool, size> screen_type;
     std::unique_ptr<screen_type> screen;
+    std::unique_ptr<board_type> board;
 
     Screen(){
         screen = std::make_unique<screen_type>();
+        board = std::make_unique<board_type>();
+        
+        std::fill(board->begin(), board->end(), sf::RectangleShape(sf::Vector2f(pixel_dim, pixel_dim)));
+        // turn off pixels
+        for(auto pixel : *board) {
+            pixel.setFillColor(OFF);
+        }
+
+        // for(unsigned char i = 0; i < height)
     }
 
     inline void clear() {
         std::fill(screen->begin(), screen->end(), false);
+        for(auto a : *board) {
+            a.setFillColor(ON);
+        }
     }
 
     ~Screen() = default;
