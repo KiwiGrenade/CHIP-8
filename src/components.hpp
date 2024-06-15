@@ -33,7 +33,6 @@ struct Memory : Component {
 
 class Pixel {
     sf::RectangleShape pix;
-    // bool state;
 
 public:
     static constexpr float dim = 10.f;
@@ -55,28 +54,17 @@ public:
 
     sf::RectangleShape& getShape() { return pix; }
 
-    void setPosition(const sf::Vector2f& position) { pix.setPosition(position); }
-
     ~Pixel() = default;
 };
 
 class Screen : Component {
+public:
     static constexpr unsigned short height = 32;
     static constexpr unsigned short width = 64;
     static constexpr unsigned short nPixels = width * height;
-    typedef std::array<Pixel*, nPixels> pixels_type;
-    typedef std::array<bool, nPixels> board_type;
-    std::unique_ptr<pixels_type> pixels;
-
-public:
 
     Screen(){
         pixels = std::make_unique<pixels_type>();
-
-        // // turn off pixels
-        // for(auto a : *pixels) {
-        //     a->setState(false);
-        // }
 
         // set pixel position 
         for(unsigned short i = 0; i < height; i++) {
@@ -89,8 +77,6 @@ public:
         }
     }
 
-    inline pixels_type& getPixels() { return *pixels; }
-
     inline void clear() {
         for(auto a : *pixels) {
             a->setState(false);
@@ -102,6 +88,10 @@ public:
     }
     
     ~Screen() = default;
+private:
+    typedef std::array<Pixel*, nPixels> pixels_type;
+    typedef std::array<bool, nPixels> board_type;
+    std::unique_ptr<pixels_type> pixels;
 };
 
 #endif //COMPONENTS_HPP

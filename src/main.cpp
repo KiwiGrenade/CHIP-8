@@ -62,16 +62,21 @@ int main()
             }
         }
         
-        myChip8->emulateCycle();
+        // myChip8->emulateCycle();
 
 
-        if(myChip8->drawFlag) {
+        // if(myChip8->drawFlag) {
             window.clear();
-            for(Pixel* pixel : myChip8->screen->getPixels()) {
-                window.draw(pixel->getShape());
+            for(unsigned short i = 0; i < Screen::height; i++) {
+                for(unsigned short j = 0; j < Screen::width; j++) {
+                    float x = float(j * Pixel::dim);
+                    float y = float(i * Pixel::dim);
+                    Pixel pixel = myChip8->screen->getPixel(x, y);
+                    window.draw(pixel.getShape());
+                }
             }
             window.display();
-        }
+        // }
     }
 
     return 0;
