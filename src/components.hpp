@@ -33,20 +33,25 @@ struct Memory : Component {
 
 class Pixel {
     sf::RectangleShape pix;
+    bool state;
 
 public:
     static constexpr float dim = 10.f;
     
-    Pixel() { pix = sf::RectangleShape(sf::Vector2f(dim, dim)); }
+    Pixel() { 
+        pix = sf::RectangleShape(sf::Vector2f(dim, dim)); 
+        state = true;
+        pix.setFillColor(sf::Color::White);
+    }
 
-    inline void ON() { pix.setFillColor(sf::Color::White); }
+    bool getState() { return state; }
 
-    inline void OFF() { pix.setFillColor(sf::Color::Black); }
-
-    bool getState() {
-        if(pix.getFillColor() == sf::Color::White)
-            return true;
-        return false;
+    void setState(bool _state){
+        state = _state;
+        if(state)
+            pix.setFillColor(sf::Color::White);
+        else
+            pix.setFillColor(sf::Color::Black);
     }
 
     sf::RectangleShape& getShape() { return pix; }
@@ -59,40 +64,46 @@ public:
 class Screen : Component {
     static constexpr unsigned short height = 32;
     static constexpr unsigned short width = 64;
-    static constexpr unsigned short size = width * height;
-    typedef std::array<Pixel, size> pixels_type;
+    static constexpr unsigned short nPixels = width * height;
+    typedef std::array<Pixel*, nPixels> pixels_type;
+    typedef std::array<bool, nPixels> board_type;
     std::unique_ptr<pixels_type> pixels;
 
 public:
 
     Screen(){
         pixels = std::make_unique<pixels_type>();
-        
-        std::fill(pixels->begin(), pixels->end(), Pixel());
 
+        for(unsigned short i = 0; i < nPixels; i++) {
+            (*pixels)[i] = new Pixel();
+        }
+        
         // turn off pixels
-        for(auto p : *pixels)
-            p.ON();
+        for(auto a : *pixels) {
+            a->setState(false);
+        }
 
         // set pixel position 
         for(unsigned short i = 0; i < height; i++) {
             for(unsigned short j = 0; j < width; j++) {
                 float x = float(j * Pixel::dim);
                 float y = float(i * Pixel::dim);
-                (*pixels)[i * width + j].setPosition(sf::Vector2f(x, y));
+                (*pixels)[i * width + j]->setPosition(sf::Vector2f(x, y));
             }
         }
     }
 
-    pixels_type& getPixels() { return *pixels; }
+    inline pixels_type& getPixels() { return *pixels; }
 
     inline void clear() {
         for(auto a : *pixels) {
-            a.OFF();
+            a->setState(false);
         }
     }
 
-    inline Pixel& getPixel(const unsigned short& x, const unsigned short& y) { return (*pixels)[y * width + x]; }
+    inline Pixel& getPixel(const unsigned short& x, const unsigned short& y) {
+        return *(*pixels)[(y % height) * width + (x % width)];
+    }
     
     ~Screen() = default;
 };

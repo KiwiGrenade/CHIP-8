@@ -3,11 +3,14 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <time.h>
 #include "chip8.hpp"
 
 Chip8::Chip8() {
     memory = std::make_unique<Memory>();
     screen = std::make_unique<Screen>();
+    std::srand(time(nullptr));
+    nEmuCycle = 0;
 }
 
 void Chip8::initialize() {
@@ -15,6 +18,8 @@ void Chip8::initialize() {
     opcode = 0;
     I = 0;
     sp = 0;
+    drawFlag = 0;
+
     screen->clear();
     for(unsigned short a : stack) // clear stack
         a = 0;
@@ -23,8 +28,8 @@ void Chip8::initialize() {
     memory->clear();
 
     // Load fontset
-    // for(int i = 0; i < 80; ++i)
-    //     memory[i] = fontset[i];
+    for(int i = 0; i < 80; ++i)
+        (*memory)[i] = fontset[i];
 }
 
 void Chip8::loadFile(std::string filename) {
@@ -37,7 +42,7 @@ void Chip8::loadFile(std::string filename) {
 
     for(size_t i = 512; !file.eof() && i < Memory::size; i++) {
         file >> (*memory)[i];
-        std::cout << std::hex << static_cast<unsigned>((*memory)[i]) << std::endl;
+        // std::cout << std::hex << static_cast<unsigned>((*memory)[i]) << std::endl;
     }
 
     file.close();
@@ -50,7 +55,7 @@ void unknownOpcode(const unsigned short& opcode) {
 
 void Chip8::emulateCycle() {
     opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
-    
+    // std::cout << std::dec << "Emulation Cycle: " << nEmuCycle << std::endl;
     // 1010 0000 0000 0000 & 
     // 1111 0000 0000 0000 =
     // 1010 0000 0000 0000
@@ -58,7 +63,7 @@ void Chip8::emulateCycle() {
         case 0x0000: // 0000 0000 0000 0000 
             switch (opcode & 0x000F) { // check last 4 bits
             case 0x0000: // 0x00E0: Clear screen
-                screen->clear();
+                // screen->clear();
                 pc+=2;
                 break;
             case 0x00EE: // 0x00EE: Return from subroutine
@@ -120,6 +125,7 @@ void Chip8::emulateCycle() {
                     pc+=2;
                     break;
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
+                    V[0xF] = 0;
                     V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) > 4]) & 0x00FF; // store only lowest 8 bits
                     if(V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4] > 255)
                         V[0xF] = 1;
@@ -127,34 +133,28 @@ void Chip8::emulateCycle() {
                     break;
                 
                 case 0x0005: // 0x8XY5: V[X] SUB V[Y]
-                     V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] - V[(opcode & 0x00F0) >> 4]) & 0x00FF; // TODO: Store only lowest 8 bits or not?.
-                    if(V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4])
+                    V[0xF] = 0;
+                    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] - V[(opcode & 0x00F0) >> 4]) & 0x00FF;
+                    if(V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4]) {}
                         V[0xF] = 1;
-                    else
-                        V[0xF] = 0;
                     pc+=2;
                     break;
                 case 0x0006: // 0x8XY6: V[X] = V[X] / 2 
+                    V[0xF] = 0;
                     if(V[(opcode & 0x0F00) >> 8] & 1) // check if last bit is 1
                         V[0xF] = 1;
-                    else
-                        V[0xF] = 0;
                     V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] >> 1;
                     pc+=2;
                     break;
                 case 0x0007: // 0x8XY7: V[X] SUBN V[Y]
-                     V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8]) & 0x00FF;
+                    V[0xF] = 0;
+                    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8]) & 0x00FF;
                     if(V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 8])
                         V[0xF] = 1;
-                    else
-                        V[0xF] = 0;
                     pc+=2;
                     break;
                 case 0x000E: // 0x8XYE: V[X] = V[X] * 2 
-                    if(V[(opcode & 0x0F00) >> 8] & 1) // check if last bit is 1
-                        V[0xF] = 1;
-                    else
-                        V[0xF] = 0;
+                    V[0xF] = ((V[(opcode & 0x0F00) >> 8]) >> 15) & 1; // set to most significant bit of
                     V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] << 1;
                     pc+=2;
                     break;
@@ -171,11 +171,26 @@ void Chip8::emulateCycle() {
             break;
         case 0xB000: // 0xBNNN: pc = NNN + V[0x0]
             pc = (opcode & 0x0FFF) + V[0x0];
-        case 0xC000: // 0xCXKK: V[X] = random byte AND KK 
-        // TO BO IMPLEMENTED!!!!
-        case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision; 
-        // TO BO IMPLEMENTED!!!!
-            std::cout << "Not implemented yet!" << std::endl;
+        case 0xC000: // 0xCXKK: V[X] = random byte AND KK
+            // TODO: Replace rand() with something else
+            V[(opcode & 0x0F00) >> 8] = (rand() % 256) & (opcode & 0x00FF);
+        case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
+            V[0xF] = 0;
+            for(unsigned char i = 0; i < (opcode & 0x000F); i++, I++) {
+                unsigned short y = (((opcode & 0x00F0) >> 4) + i);
+                unsigned char row = (*memory)[I];
+                for(unsigned char j = 0; j < 8; j++) {
+                    unsigned short x = (((opcode & 0x0F00) >> 8) + j);
+                    bool curr_bit = (row >> (8-j-1)) & 1;
+                    Pixel& pixel = screen->getPixel(x, y);
+                    std::cout << "x = " << x << ", y = " << y << std::endl;
+                    if(pixel.getState() && !curr_bit) {
+                        V[0xF] = 1;
+                    }
+                    pixel.setState(true);
+                }
+            }
+            pc += 2;
             break;
         case 0xE000:
             switch(opcode & 0x00FF){
@@ -212,12 +227,11 @@ void Chip8::emulateCycle() {
                     pc+=2;
                     break;
                 case 0x0029: // 0xFX29: I = location_of_sprite_for_digit_V[X]
-                // TO BE IMPLEMENTED!!!!
                     std::cout << "Not implemented yet!" << std::endl;
                     break;
                 case 0x0033: // 0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2
                     (*memory)[I+2] = V[(opcode & 0x0F00) >> 8] % 10; // ones
-                    (*memory)[I+1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10; // tens
+                    (*memory)[I+1] = (V[(opcode & 0x0EFF) >> 8] / 10) % 10; // tens
                     (*memory)[I] = (V[(opcode & 0x0F00) >> 8] / 100) % 10; // hundreds
                     pc+=2;
                     break;
@@ -246,6 +260,7 @@ void Chip8::emulateCycle() {
             std::cout << "BEEP!\n";
         --sound_timer;
     }
+    ++nEmuCycle;
 }
 
 

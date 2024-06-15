@@ -33,12 +33,6 @@ int main()
      *  32. }
      * */
 
-    Chip8 myChip8;
-    myChip8.initialize();
-    myChip8.loadFile("../chip8-test-rom/test_opcode.ch8");
-
-    // while(true) {}
-
     std::string welcomeMessage {"CHIP-8 will be here soon! WORK IN PROGRESS"};
     std::string fontFileName {"../assets/fonts/BigBlueTerm437NerdFont-Regular.ttf"};
 
@@ -50,9 +44,13 @@ int main()
 
     sf::Text text(welcomeMessage, font, 64);
     text.setFillColor(sf::Color::Green);
-
-    auto window = sf::RenderWindow{ { 640u, 320u}, welcomeMessage};
+    auto window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
     window.setFramerateLimit(144);
+    
+    Chip8* myChip8 = new Chip8();
+    myChip8->initialize();
+    myChip8->loadFile("../chip8-test-rom/test_opcode.ch8");
+
 
     while (window.isOpen())
     {
@@ -63,13 +61,18 @@ int main()
                 window.close();
             }
         }
+        
+        myChip8->emulateCycle();
 
-        window.clear();
-        // window.draw(text);
-        for(Pixel pixel : myChip8.screen->getPixels()) {
-            window.draw(pixel.getShape());
+
+        if(myChip8->drawFlag) {
+            window.clear();
+            for(Pixel* pixel : myChip8->screen->getPixels()) {
+                window.draw(pixel->getShape());
+            }
+            window.display();
         }
-        // window.draw((*myChip8.screen->board)[0]);
-        window.display();
     }
+
+    return 0;
 }
