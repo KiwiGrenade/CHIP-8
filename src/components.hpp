@@ -1,6 +1,7 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
+#include "SFML/System/Vector2.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <memory>
@@ -30,42 +31,64 @@ struct Memory : Component {
     ~Memory() = default;
 };
 
-//TODO: tidy it later
-struct Screen : Component {
+class Pixel {
+    sf::RectangleShape pix;
+
+public:
+    static constexpr float dim = 10.f;
+    
+    Pixel() { pix = sf::RectangleShape(sf::Vector2f(dim, dim)); }
+
+    inline void ON() { pix.setFillColor(sf::Color::White); }
+
+    inline void OFF() { pix.setFillColor(sf::Color::Black); }
+
+    bool getState() {
+        if(pix.getFillColor() == sf::Color::White)
+            return true;
+        return false;
+    }
+
+    void setPosition(const sf::Vector2f& position) { pix.setPosition(position); }
+
+    ~Pixel() = default;
+};
+
+class Screen : Component {
     static constexpr unsigned short height = 32;
     static constexpr unsigned short width = 64;
-    static constexpr float pixel_dim = 10.f;
     static constexpr unsigned short size = width * height; // 64p wide, 32p high
-
-    const sf::Color OFF = sf::Color::Black;
-    const sf::Color ON = sf::Color::White;
-
-    typedef std::array<sf::RectangleShape, size> board_type;
-    typedef std::array<bool, size> screen_type;
+    typedef std::array<Pixel, size> screen_type;
     std::unique_ptr<screen_type> screen;
-    std::unique_ptr<board_type> board;
 
     Screen(){
         screen = std::make_unique<screen_type>();
-        board = std::make_unique<board_type>();
         
-        std::fill(board->begin(), board->end(), sf::RectangleShape(sf::Vector2f(pixel_dim, pixel_dim)));
-        // turn off pixels
-        for(auto pixel : *board) {
-            pixel.setFillColor(OFF);
-        }
+        std::fill(screen->begin(), screen->end(), Pixel());
 
-        // for(unsigned char i = 0; i < height)
+        // turn off pixels
+        for(auto p : *screen)
+            p.ON();
+
+        // set pixel position 
+        for(unsigned short i = 0; i < height; i++) {
+            for(unsigned short j = 0; j < width; j++) {
+                float x = float(j * Pixel::dim);
+                float y = float(i * Pixel::dim);
+                (*screen)[i * width + j].setPosition(sf::Vector2f(x, y));
+            }
+        }
     }
 
     inline void clear() {
-        std::fill(screen->begin(), screen->end(), false);
-        for(auto a : *board) {
-            a.setFillColor(ON);
+        for(auto a : *screen) {
+            a.OFF();
         }
     }
 
-    ~Screen() = default;
+    inline Pixel& getPixel(const unsigned short& x, const unsigned short& y) { return (*screen)[y * width + x]; }
+    
+    ~Screen();
 };
 
 #endif //COMPONENTS_HPP
