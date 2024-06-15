@@ -66,8 +66,8 @@ int main()
 
         window.clear();
         // window.draw(text);
-        for(sf::RectangleShape pixel : myChip8.screen->screen) {
-            window.draw(pixel);
+        for(Pixel pixel : myChip8.screen->getPixels()) {
+            window.draw(pixel.getShape());
         }
         // window.draw((*myChip8.screen->board)[0]);
         window.display();

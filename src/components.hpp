@@ -49,6 +49,8 @@ public:
         return false;
     }
 
+    sf::RectangleShape& getShape() { return pix; }
+
     void setPosition(const sf::Vector2f& position) { pix.setPosition(position); }
 
     ~Pixel() = default;
@@ -57,17 +59,19 @@ public:
 class Screen : Component {
     static constexpr unsigned short height = 32;
     static constexpr unsigned short width = 64;
-    static constexpr unsigned short size = width * height; // 64p wide, 32p high
-    typedef std::array<Pixel, size> screen_type;
-    std::unique_ptr<screen_type> screen;
+    static constexpr unsigned short size = width * height;
+    typedef std::array<Pixel, size> pixels_type;
+    std::unique_ptr<pixels_type> pixels;
+
+public:
 
     Screen(){
-        screen = std::make_unique<screen_type>();
+        pixels = std::make_unique<pixels_type>();
         
-        std::fill(screen->begin(), screen->end(), Pixel());
+        std::fill(pixels->begin(), pixels->end(), Pixel());
 
         // turn off pixels
-        for(auto p : *screen)
+        for(auto p : *pixels)
             p.ON();
 
         // set pixel position 
@@ -75,20 +79,22 @@ class Screen : Component {
             for(unsigned short j = 0; j < width; j++) {
                 float x = float(j * Pixel::dim);
                 float y = float(i * Pixel::dim);
-                (*screen)[i * width + j].setPosition(sf::Vector2f(x, y));
+                (*pixels)[i * width + j].setPosition(sf::Vector2f(x, y));
             }
         }
     }
 
+    pixels_type& getPixels() { return *pixels; }
+
     inline void clear() {
-        for(auto a : *screen) {
+        for(auto a : *pixels) {
             a.OFF();
         }
     }
 
-    inline Pixel& getPixel(const unsigned short& x, const unsigned short& y) { return (*screen)[y * width + x]; }
+    inline Pixel& getPixel(const unsigned short& x, const unsigned short& y) { return (*pixels)[y * width + x]; }
     
-    ~Screen();
+    ~Screen() = default;
 };
 
 #endif //COMPONENTS_HPP
