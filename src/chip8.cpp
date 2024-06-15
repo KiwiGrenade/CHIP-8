@@ -55,6 +55,7 @@ void unknownOpcode(const unsigned short& opcode) {
 
 void Chip8::emulateCycle() {
     opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
+    drawFlag = false;
     // std::cout << std::dec << "Emulation Cycle: " << nEmuCycle << std::endl;
     // 1010 0000 0000 0000 & 
     // 1111 0000 0000 0000 =
@@ -63,7 +64,7 @@ void Chip8::emulateCycle() {
         case 0x0000: // 0000 0000 0000 0000 
             switch (opcode & 0x000F) { // check last 4 bits
             case 0x0000: // 0x00E0: Clear screen
-                // screen->clear();
+                screen->clear();
                 pc+=2;
                 break;
             case 0x00EE: // 0x00EE: Return from subroutine
@@ -84,12 +85,12 @@ void Chip8::emulateCycle() {
             pc = opcode & 0x0FFF;
             break;
         case 0x3000: // 0x3XKK: Skip next instr. if V[X] == KK
-            if((V[(opcode & 0x0F00) >> 8] ^ opcode & 0x00FF) == false)
+            if(!(V[(opcode & 0x0F00) >> 8] ^ (opcode & 0x00FF)))
                 pc+=2;
             pc+=2;
             break;
         case 0x4000: // 0x4XKK: Skip next instr. if V[X] != KK
-            if(V[(opcode & 0x0F00) >> 8] ^ opcode & 0x00FF)
+            if(V[(opcode & 0x0F00) >> 8] ^ (opcode & 0x00FF))
                 pc+=2;
             pc+=2;
             break;
@@ -183,13 +184,14 @@ void Chip8::emulateCycle() {
                     unsigned short x = (((opcode & 0x0F00) >> 8) + j);
                     bool curr_bit = (row >> (8-j-1)) & 1;
                     Pixel& pixel = screen->getPixel(x, y);
-                    std::cout << "x = " << x << ", y = " << y << std::endl;
+                    // std::cout << "x = " << x << ", y = " << y << std::endl;
                     if(pixel.getState() && !curr_bit) {
                         V[0xF] = 1;
                     }
                     pixel.setState(true);
                 }
             }
+            drawFlag = true;
             pc += 2;
             break;
         case 0xE000:

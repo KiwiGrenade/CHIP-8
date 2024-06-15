@@ -33,21 +33,20 @@ struct Memory : Component {
 
 class Pixel {
     sf::RectangleShape pix;
-    bool state;
+    // bool state;
 
 public:
     static constexpr float dim = 10.f;
     
-    Pixel() { 
-        pix = sf::RectangleShape(sf::Vector2f(dim, dim)); 
-        state = true;
-        pix.setFillColor(sf::Color::White);
+    Pixel(const sf::Vector2f& position) { 
+        pix = sf::RectangleShape(sf::Vector2f(dim, dim));
+        pix.setPosition(position);
+        setState(false);
     }
 
-    bool getState() { return state; }
+    bool getState() { return pix.getFillColor() == sf::Color::White ? true : false; }
 
-    void setState(bool _state){
-        state = _state;
+    void setState(const bool& state){
         if(state)
             pix.setFillColor(sf::Color::White);
         else
@@ -74,21 +73,18 @@ public:
     Screen(){
         pixels = std::make_unique<pixels_type>();
 
-        for(unsigned short i = 0; i < nPixels; i++) {
-            (*pixels)[i] = new Pixel();
-        }
-        
-        // turn off pixels
-        for(auto a : *pixels) {
-            a->setState(false);
-        }
+        // // turn off pixels
+        // for(auto a : *pixels) {
+        //     a->setState(false);
+        // }
 
         // set pixel position 
         for(unsigned short i = 0; i < height; i++) {
             for(unsigned short j = 0; j < width; j++) {
                 float x = float(j * Pixel::dim);
                 float y = float(i * Pixel::dim);
-                (*pixels)[i * width + j]->setPosition(sf::Vector2f(x, y));
+
+                (*pixels)[i * width + j] = new Pixel(sf::Vector2f(x, y));
             }
         }
     }
