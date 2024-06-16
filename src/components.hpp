@@ -1,12 +1,12 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
+#include <memory>
+#include <array>
+#include <fstream>
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <memory>
-#include <array>
-
 struct Component {
     virtual inline void clear() = 0;
 };
@@ -15,6 +15,8 @@ struct Component {
      * + 0x200 (512) to 0xFFF (4095) - program memory (ETI 660 programs start at 0x600 (1536))*/
 struct Memory : Component {
     static constexpr unsigned short size = 4096;
+    static constexpr unsigned short programBegin = 512;
+
     typedef std::array<unsigned char, size> memory_type;
     std::unique_ptr<memory_type> memory;
 
@@ -27,6 +29,11 @@ struct Memory : Component {
 
     unsigned char& operator[](const std::size_t idx) { return (*memory)[idx]; }
     const unsigned char& operator[](const std::size_t idx) const { return (*memory)[idx]; }
+
+    void loadProgram(std::ifstream& file) {
+        for(size_t i = programBegin; !file.eof() && i < size; i++)
+            file >> (*memory)[i];
+    }
 
     ~Memory() = default;
 };

@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <ostream>
 #include <string>
 #include <iostream>
 #include <time.h>
@@ -13,7 +12,6 @@ Chip8::Chip8() {
     screen = std::make_unique<Screen>();
     std::srand(time(nullptr));
 }
-
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
     for(unsigned short i = 0; i < Screen::height; i++) {
@@ -28,7 +26,7 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
 }
 
 void Chip8::initialize() {
-    pc = 512;
+    pc = Memory::programBegin;
     opcode = 0;
     I = 0;
     sp = 0;
@@ -54,10 +52,7 @@ void Chip8::loadFile(std::string filename) {
         exit(2);
     }
 
-    for(size_t i = 512; !file.eof() && i < Memory::size; i++) {
-        file >> (*memory)[i];
-
-    }
+    memory->loadProgram(file);
 
     file.close();
 }
