@@ -40,7 +40,7 @@ int main()
 
         if(myChip8->drawFlag)
             myChip8->drawScreen(window);
-        i++;
+        ++i;
     }
 
     return 0;

@@ -14,8 +14,8 @@ Chip8::Chip8() {
 }
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
-    for(unsigned short i = 0; i < Screen::height; i++) {
-        for(unsigned short j = 0; j < Screen::width; j++) {
+    for(unsigned short i = 0; i < Screen::height; ++i) {
+        for(unsigned short j = 0; j < Screen::width; ++j) {
             float x = float(j * Pixel::dim);
             float y = float(i * Pixel::dim);
             Pixel* pixel = screen->getPixel(x, y);
@@ -67,12 +67,12 @@ void Chip8::emulateCycle() {
     opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
     pc+=2;
 
-    unsigned short nnn =    opcode & 0x0FFF;
-    unsigned char n    =    opcode & 0x000F;
-    unsigned short x    =   (opcode & 0x0F00) >> 8;
-    unsigned short y    =   (opcode & 0x00F0) >> 4;
-    unsigned char kk   =    opcode & 0x00FE;
-    unsigned char& VF = V[0xF];
+    unsigned short  nnn =    opcode & 0x0FFF;
+    unsigned char   n   =    opcode & 0x000F;
+    unsigned short  x   =   (opcode & 0x0F00) >> 8;
+    unsigned short  y   =   (opcode & 0x00F0) >> 4;
+    unsigned char   kk  =    opcode & 0x00FE;
+    unsigned char&  VF  =    V[0xF];
 
     std::cout << "Opcode: " << std::hex << opcode << std::endl\
               << "x:      " << x << std::endl
@@ -98,7 +98,7 @@ void Chip8::emulateCycle() {
             pc = nnn;
             break;
         case 0x2000: // 0x2NNN: Call subroutine at NNN
-            stack[sp] = pc;
+            stack[sp] = pc-2; // earlier incremented by 2
             ++sp;
             pc = nnn;
             break;
@@ -179,10 +179,10 @@ void Chip8::emulateCycle() {
             // std::cout << "x = " << x << ", y = " << y << std::endl;
             VF = 0;
             // std::cout << "Drawing!" << std::endl;
-            for(unsigned char i = 0; i < n; i++) {
+            for(unsigned char i = 0; i < n; ++i) {
                 unsigned short yrow = y + i;
                 unsigned char row = (*memory)[I+i];
-                for(unsigned char j = 0; j < 8; j++) {
+                for(unsigned char j = 0; j < 8; ++j) {
                     unsigned short xline = x + j;
                     bool curr_bit = (row >> (7-j)) & 1;
                     Pixel* pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?

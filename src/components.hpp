@@ -8,7 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 struct Component {
-    virtual inline void clear() = 0;
+    virtual void clear() = 0;
 };
     /* CHIP-8 has 4KB memory (4096 bytes), from location 0x000 (0) to 0xFFF (4095):
      * + 0x000 (0) to 0x1FF (511) - CHIP-8 interpreter
@@ -17,23 +17,19 @@ struct Memory : Component {
     static constexpr unsigned short size = 4096;
     static constexpr unsigned short programBegin = 512;
 
-    typedef std::array<unsigned char, size> memory_type;
-    std::unique_ptr<memory_type> memory;
+    std::array<unsigned char, size> arr{0};
 
-    Memory(){
-        memory = std::make_unique<memory_type>();
-        std::fill(memory->begin(), memory->end(), 0);
-    }
+    Memory() = default;
 
-    inline void clear() { std::fill(memory->begin(), memory->end(), 0); }
-
-    unsigned char& operator[](const std::size_t idx) { return (*memory)[idx]; }
-    const unsigned char& operator[](const std::size_t idx) const { return (*memory)[idx]; }
+    void clear() { std::fill(arr.begin(), arr.end(), 0); }
 
     void loadProgram(std::ifstream& file) {
-        for(size_t i = programBegin; !file.eof() && i < size; i++)
-            file >> (*memory)[i];
+        for(size_t i = programBegin; !file.eof() && i < size; ++i)
+            file >> arr[i];
     }
+
+    unsigned char& operator[](const std::size_t idx) { return arr[idx]; }
+    const unsigned char& operator[](const std::size_t idx) const { return arr[idx]; }
 
     ~Memory() = default;
 };
@@ -74,8 +70,8 @@ public:
         pixels = std::make_unique<pixels_type>();
 
         // set pixel position 
-        for(unsigned short i = 0; i < height; i++) {
-            for(unsigned short j = 0; j < width; j++) {
+        for(unsigned short i = 0; i < height; ++i) {
+            for(unsigned short j = 0; j < width; ++j) {
                 float x = float(j * Pixel::dim);
                 float y = float(i * Pixel::dim);
 
@@ -84,13 +80,13 @@ public:
         }
     }
 
-    inline void clear() {
+    void clear() {
         for(auto a : *pixels) {
             a->setState(false);
         }
     }
 
-    inline Pixel* getPixel(const unsigned short& x, const unsigned short& y) {
+    Pixel* getPixel(const unsigned short& x, const unsigned short& y) {
         return (*pixels)[(y % height) * width + (x % width)];
     }
     
