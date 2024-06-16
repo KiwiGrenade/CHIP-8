@@ -1,12 +1,12 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
-#include <memory>
 #include <array>
 #include <fstream>
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <memory>
 struct Component {
     virtual void clear() = 0;
 };
@@ -36,7 +36,6 @@ struct Memory : Component {
 
 class Pixel {
     sf::RectangleShape pix;
-
 public:
     static constexpr float dim = 10.f;
     
@@ -48,12 +47,7 @@ public:
 
     bool getState() { return pix.getFillColor() == sf::Color::White ? true : false; }
 
-    void setState(const bool& state){
-        if(state)
-            pix.setFillColor(sf::Color::White);
-        else
-            pix.setFillColor(sf::Color::Black);
-    }
+    void setState(const bool& state) { state ? pix.setFillColor(sf::Color::White) : pix.setFillColor(sf::Color::Black); }
 
     sf::RectangleShape& getShape() { return pix; }
 
@@ -67,34 +61,30 @@ public:
     static constexpr unsigned short nPixels = width * height;
 
     Screen(){
-        pixels = std::make_unique<pixels_type>();
-
         // set pixel position 
         for(unsigned short i = 0; i < height; ++i) {
             for(unsigned short j = 0; j < width; ++j) {
                 float x = float(j * Pixel::dim);
                 float y = float(i * Pixel::dim);
 
-                (*pixels)[i * width + j] = new Pixel(sf::Vector2f(x, y));
+                pixels[i * width + j] = std::make_shared<Pixel>(Pixel(sf::Vector2f(x, y)));
             }
         }
     }
 
     void clear() {
-        for(auto a : *pixels) {
+        for(auto a : pixels) {
             a->setState(false);
         }
     }
 
-    Pixel* getPixel(const unsigned short& x, const unsigned short& y) {
-        return (*pixels)[(y % height) * width + (x % width)];
+    std::shared_ptr<Pixel> getPixel(const unsigned short& x, const unsigned short& y) {
+        return pixels[(y % height) * width + (x % width)];
     }
     
     ~Screen() = default;
 private:
-    typedef std::array<Pixel*, nPixels> pixels_type;
-    typedef std::array<bool, nPixels> board_type;
-    std::unique_ptr<pixels_type> pixels;
+    std::array<std::shared_ptr<Pixel>, nPixels> pixels;
 };
 
 #endif //COMPONENTS_HPP

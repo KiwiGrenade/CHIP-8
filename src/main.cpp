@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <memory>
 #include <string>
 #include <iostream>
 #include "chip8.hpp"
@@ -20,7 +21,8 @@ int main()
     sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
     window.setFramerateLimit(144);
     
-    Chip8* myChip8 = new Chip8();
+    std::unique_ptr<Chip8> myChip8;
+    myChip8 = std::make_unique<Chip8>(); 
     myChip8->initialize();
     myChip8->loadFile("../roms/test/1-chip8-logo.ch8");
 

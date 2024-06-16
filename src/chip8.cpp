@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <iostream>
 #include <time.h>
@@ -18,7 +19,7 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
         for(unsigned short j = 0; j < Screen::width; ++j) {
             float x = float(j * Pixel::dim);
             float y = float(i * Pixel::dim);
-            Pixel* pixel = screen->getPixel(x, y);
+            std::shared_ptr<Pixel> pixel = screen->getPixel(x, y);
             window.draw(pixel->getShape());
         }
     }
@@ -185,7 +186,7 @@ void Chip8::emulateCycle() {
                 for(unsigned char j = 0; j < 8; ++j) {
                     unsigned short xline = x + j;
                     bool curr_bit = (row >> (7-j)) & 1;
-                    Pixel* pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?
+                    std::shared_ptr<Pixel> pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?
                     // std::cout << "x = " << xline << ", y = " << yrow << std::endl;
                     if(pixel->getState() && !curr_bit) {
                         VF = 1;
