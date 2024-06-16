@@ -14,13 +14,11 @@ Chip8::Chip8() {
     screen = std::make_unique<Screen>();
     std::srand(time(nullptr));
 }
-
+//
 void Chip8::drawScreen(sf::RenderWindow& window) {
     for(unsigned short i = 0; i < Screen::height; ++i) {
         for(unsigned short j = 0; j < Screen::width; ++j) {
-            float x = float(j * Pixel::dim);
-            float y = float(i * Pixel::dim);
-            std::shared_ptr<Pixel> pixel = screen->getPixel(x, y);
+            std::shared_ptr<Pixel> pixel = screen->getPixel(j, i);
             window.draw(pixel->getShape());
         }
     }
@@ -180,7 +178,7 @@ void Chip8::emulateCycle() {
             V[x] = (rand() % 256) & kk;
             break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
-     // std::cout << std::dec << cycleNumber << " Opcode: " << std::hex << opcode << std::endl\
+        // std::cout << std::dec << cycleNumber << " Opcode: " << std::hex << opcode << std::endl\
               << "x:      " << x << std::endl\
               << "y:      " << y << std::endl;
 
@@ -190,7 +188,8 @@ void Chip8::emulateCycle() {
                 unsigned char row = (*memory)[I+i];
                 for(unsigned char j = 0; j < 8; ++j) {
                     unsigned short xline = V[x] + j;
-                    bool curr_bit = (row >> (7-j)) & 1;
+                    bool curr_bit = (row >> (8-j-1)) & 1;
+                    
                     std::shared_ptr<Pixel> pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?
                     if(pixel->getState() && !curr_bit) {
                         VF = 1;

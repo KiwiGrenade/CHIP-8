@@ -2,7 +2,6 @@
 #define COMPONENTS_HPP
 
 #include <array>
-#include <fstream>
 #include <memory>
 #include <iostream>
 #include "SFML/System/Vector2.hpp"
@@ -105,6 +104,7 @@ public:
             for(unsigned short j = 0; j < width; ++j) {
                 float x = float(j * Pixel::dim);
                 float y = float(i * Pixel::dim);
+                std::cout << std::dec << "x = " << x << ", y = " << y << std::endl; 
 
                 pixels[i * width + j] = std::make_shared<Pixel>(Pixel(sf::Vector2f(x, y)));
             }
@@ -122,7 +122,6 @@ public:
     }
     
     ~Screen() = default;
-private:
     std::array<std::shared_ptr<Pixel>, nPixels> pixels;
 };
 

@@ -2,30 +2,19 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
 #include <string>
-#include <iostream>
 #include "chip8.hpp"
 
 int main()
 {
     std::string welcomeMessage {"CHIP-8 will be here soon! WORK IN PROGRESS"};
-    std::string fontFileName {"../assets/fonts/BigBlueTerm437NerdFont-Regular.ttf"};
 
-    sf::Font font;
-
-    if(font.loadFromFile(fontFileName) == false) {
-        exit(2);
-    }
-
-    sf::Text text(welcomeMessage, font, 64);
-    text.setFillColor(sf::Color::Green);
     sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
-    window.setFramerateLimit(144);
+    window.setFramerateLimit(60);
     
     std::unique_ptr<Chip8> myChip8;
     myChip8 = std::make_unique<Chip8>(); 
     myChip8->initialize();
     myChip8->loadFile("../roms/test/1-chip8-logo.ch8");
-    // myChip8->memory->printProgram();
 
     while (window.isOpen())
     {
