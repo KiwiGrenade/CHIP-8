@@ -25,11 +25,10 @@ int main()
     myChip8 = std::make_unique<Chip8>(); 
     myChip8->initialize();
     myChip8->loadFile("../roms/test/1-chip8-logo.ch8");
+    myChip8->memory->printProgram();
 
-    int i = 0;
-    while (window.isOpen() && i < 50)
+    while (window.isOpen())
     {
-        std::cout << std::dec << "#" << i << " ";
         for (auto event = sf::Event{}; window.pollEvent(event);)
         {
             if (event.type == sf::Event::Closed)
@@ -42,7 +41,6 @@ int main()
 
         if(myChip8->drawFlag)
             myChip8->drawScreen(window);
-        ++i;
     }
 
     return 0;

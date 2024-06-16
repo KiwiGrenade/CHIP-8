@@ -17,6 +17,7 @@ struct Component {
 struct Memory : Component {
     static constexpr unsigned short size = 4096;
     static constexpr unsigned short programBegin = 512;
+    unsigned short programSize = 0;
 
     unsigned char fontset [80] { 
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -43,12 +44,18 @@ struct Memory : Component {
 
     void clear() { std::fill(arr.begin(), arr.end(), 0); }
 
-    void loadProgram(std::ifstream& file) {
-        for(size_t i = programBegin; !file.eof() && i < size; ++i) {
-            file >> arr[i];
-            unsigned short byte = arr[i];
-            std::cout << std::hex << byte << std::endl;
+    void loadProgram(std::vector<unsigned char>& buffer) {
+        for(size_t i = 0; i < buffer.size(); ++i, programSize++)
+            arr[i+programBegin] = buffer[i];
+    }
+
+    void printProgram() {
+        std::cout   << "###### Program START ###### " << std::endl\
+                    << "opcode index : [memory addresses] : <opcode>" << std::endl;
+        for(unsigned short i = programBegin; i < programBegin+programSize; i+=2) {
+            std::cout << std::dec << i - programBegin  << " : [" << i << "-" << i+1 << "] : " << std::hex << getOpcode(i) << std::endl;
         }
+        std::cout << "###### Program END ###### " << std::endl;
     }
 
     void loadFontset() {

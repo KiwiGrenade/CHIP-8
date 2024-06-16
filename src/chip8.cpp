@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 #include <time.h>
+#include <filesystem>
 #include "chip8.hpp"
 
 Chip8::Chip8() {
@@ -28,6 +29,8 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
 
 void Chip8::initialize() {
     pc = Memory::programBegin;
+    sound_timer = 0;
+    delay_timer = 0;
     opcode = 0;
     I = 0;
     sp = 0;
@@ -42,17 +45,23 @@ void Chip8::initialize() {
     memory->loadFontset();
 }
 
-void Chip8::loadFile(std::string filename) {
-    std::ifstream file = std::ifstream(filename, std::ifstream::binary);
+void Chip8::loadFile(const std::string& filename) {
+    std::filesystem::path inputFilePath{filename};
+    auto length = std::filesystem::file_size(inputFilePath);
+    std::ifstream inputFile(filename, std::ios_base::binary);
 
-    if(!file.is_open() || file.bad()) {
+    if((length == 0) || (inputFile.is_open() == false) || inputFile.bad()) {
         std::cerr << "ERROR: Could not open file: " << filename << '\n';
         exit(2);
     }
 
-    memory->loadProgram(file);
+    std::vector<unsigned char> buffer(length);
+    inputFile.read(reinterpret_cast<char*>(buffer.data()), length);
+    inputFile.close();
 
-    file.close();
+    memory->loadProgram(buffer);
+
+    inputFile.close();
 }
 
 void unknownOpcode(const unsigned short& opcode) {
@@ -65,7 +74,6 @@ void Chip8::emulateCycle() {
     opcode = memory->getOpcode(pc);
     pc+=2;
 
-
     unsigned short  nnn =    opcode & 0x0FFF;
     unsigned char   n   =    opcode & 0x000F;
     unsigned short  x   =   (opcode & 0x0F00) >> 8;
@@ -73,10 +81,9 @@ void Chip8::emulateCycle() {
     unsigned char   kk  =    opcode & 0x00FE;
     unsigned char&  VF  =    V[0xF];
 
-    std::cout << "Opcode: " << std::hex << opcode << std::endl\
-              << "x:      " << x << std::endl
+    // std::cout << "Opcode: " << std::hex << opcode << std::endl\
+              << "x:      " << x << std::endl\
               << "y:      " << y << std::endl;
-
 
     switch(opcode & 0xF000) { // check first 4 bits
         case 0x0000:

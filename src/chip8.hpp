@@ -23,7 +23,7 @@ struct Chip8 {
     std::unique_ptr<Screen> screen;
     Chip8();
     void initialize();
-    void loadFile(std::string filename);
+    void loadFile(const std::string& filename);
     void emulateCycle();
     void drawScreen(sf::RenderWindow& window);
 };
