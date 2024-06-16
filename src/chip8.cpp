@@ -31,7 +31,7 @@ void Chip8::initialize() {
     opcode = 0;
     I = 0;
     sp = 0;
-    drawFlag = 0;
+    drawFlag = false;
 
     screen->clear();
     for(unsigned short a : stack) // clear stack
@@ -39,10 +39,7 @@ void Chip8::initialize() {
     for(unsigned char a : V) //clear registers
         a = 0;
     memory->clear();
-
-    // Load fontset
-    for(unsigned short i = 0; i < 80; ++i)
-        (*memory)[i] = fontset[i];
+    memory->loadFontset();
 }
 
 void Chip8::loadFile(std::string filename) {
