@@ -62,8 +62,9 @@ void unknownOpcode(const unsigned short& opcode) {
 
 void Chip8::emulateCycle() {
     drawFlag = false;
-    opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
+    opcode = memory->getOpcode(pc);
     pc+=2;
+
 
     unsigned short  nnn =    opcode & 0x0FFF;
     unsigned char   n   =    opcode & 0x000F;

@@ -3,10 +3,11 @@
 
 #include <array>
 #include <fstream>
+#include <memory>
+#include <iostream>
 #include "SFML/System/Vector2.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <memory>
 struct Component {
     virtual void clear() = 0;
 };
@@ -43,13 +44,20 @@ struct Memory : Component {
     void clear() { std::fill(arr.begin(), arr.end(), 0); }
 
     void loadProgram(std::ifstream& file) {
-        for(size_t i = programBegin; !file.eof() && i < size; ++i)
+        for(size_t i = programBegin; !file.eof() && i < size; ++i) {
             file >> arr[i];
+            unsigned short byte = arr[i];
+            std::cout << std::hex << byte << std::endl;
+        }
     }
 
     void loadFontset() {
         for(unsigned short i ; i < 80; ++i)
             arr[i] = fontset[i];
+    }
+
+    const unsigned short getOpcode(const unsigned short& pc) {
+        return arr[pc] << 8 | arr[pc+1];
     }
 
     unsigned char& operator[](const std::size_t idx) { return arr[idx]; }
