@@ -1,6 +1,7 @@
 #ifndef CHIP8_HPP
 #define CHIP8_HPP
 
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
 #include "components.hpp"
 
@@ -13,7 +14,7 @@ struct Chip8 {
     unsigned char V[16]; // 16 * 1 byte registers (VF is carry flag)
 
     std::unique_ptr<Memory> memory;
-    unsigned char fontset [80]{ 
+    unsigned char fontset [80] { 
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -36,13 +37,13 @@ struct Chip8 {
     unsigned char delay_timer;
     unsigned short stack[16];
     unsigned char key[16];
-    unsigned long long nEmuCycle;
 
     std::unique_ptr<Screen> screen;
     Chip8();
     void initialize();
     void loadFile(std::string filename);
     void emulateCycle();
+    void drawScreen(sf::RenderWindow& window);
 };
 
 #endif //CHIP8_HPP

@@ -1,6 +1,8 @@
+#include <SFML/Window/Window.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <ostream>
 #include <string>
 #include <iostream>
 #include <time.h>
@@ -10,11 +12,23 @@ Chip8::Chip8() {
     memory = std::make_unique<Memory>();
     screen = std::make_unique<Screen>();
     std::srand(time(nullptr));
-    nEmuCycle = 0;
+}
+
+
+void Chip8::drawScreen(sf::RenderWindow& window) {
+    for(unsigned short i = 0; i < Screen::height; i++) {
+        for(unsigned short j = 0; j < Screen::width; j++) {
+            float x = float(j * Pixel::dim);
+            float y = float(i * Pixel::dim);
+            Pixel* pixel = screen->getPixel(x, y);
+            window.draw(pixel->getShape());
+        }
+    }
+    window.display();
 }
 
 void Chip8::initialize() {
-    pc = 0x200;
+    pc = 512;
     opcode = 0;
     I = 0;
     sp = 0;
@@ -28,7 +42,7 @@ void Chip8::initialize() {
     memory->clear();
 
     // Load fontset
-    for(int i = 0; i < 80; ++i)
+    for(unsigned short i = 0; i < 80; ++i)
         (*memory)[i] = fontset[i];
 }
 
@@ -42,7 +56,7 @@ void Chip8::loadFile(std::string filename) {
 
     for(size_t i = 512; !file.eof() && i < Memory::size; i++) {
         file >> (*memory)[i];
-        // std::cout << std::hex << static_cast<unsigned>((*memory)[i]) << std::endl;
+
     }
 
     file.close();
@@ -54,20 +68,29 @@ void unknownOpcode(const unsigned short& opcode) {
 }
 
 void Chip8::emulateCycle() {
-    opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
     drawFlag = false;
-    // std::cout << std::dec << "Emulation Cycle: " << nEmuCycle << std::endl;
-    // 1010 0000 0000 0000 & 
-    // 1111 0000 0000 0000 =
-    // 1010 0000 0000 0000
+    opcode = (*memory)[pc] << 8 | (*memory)[pc+1];
+    pc+=2;
+
+    unsigned short nnn =    opcode & 0x0FFF;
+    unsigned char n    =    opcode & 0x000F;
+    unsigned short x    =   (opcode & 0x0F00) >> 8;
+    unsigned short y    =   (opcode & 0x00F0) >> 4;
+    unsigned char kk   =    opcode & 0x00FE;
+    unsigned char& VF = V[0xF];
+
+    std::cout << "Opcode: " << std::hex << opcode << std::endl\
+              << "x:      " << x << std::endl
+              << "y:      " << y << std::endl;
+
+
     switch(opcode & 0xF000) { // check first 4 bits
-        case 0x0000: // 0000 0000 0000 0000 
-            switch (opcode & 0x000F) { // check last 4 bits
+        case 0x0000:
+            switch (n) { // check nibble
             case 0x0000: // 0x00E0: Clear screen
                 screen->clear();
-                pc+=2;
                 break;
-            case 0x00EE: // 0x00EE: Return from subroutine
+            case 0x000E: // 0x00EE: Return from subroutine
                 pc = stack[sp];
                 --sp;
                 break;
@@ -77,130 +100,115 @@ void Chip8::emulateCycle() {
             }
             break;
         case 0x1000: // 0x1NNN: Jump to location NNN
-            pc = opcode & 0x0FFF;
+            pc = nnn;
             break;
         case 0x2000: // 0x2NNN: Call subroutine at NNN
             stack[sp] = pc;
             ++sp;
-            pc = opcode & 0x0FFF;
+            pc = nnn;
             break;
         case 0x3000: // 0x3XKK: Skip next instr. if V[X] == KK
-            if(!(V[(opcode & 0x0F00) >> 8] ^ (opcode & 0x00FF)) == false)
+            if(V[x] == kk)
                 pc+=2;
-            pc+=2;
             break;
         case 0x4000: // 0x4XKK: Skip next instr. if V[X] != KK
-            if(V[(opcode & 0x0F00) >> 8] ^ (opcode & 0x00FF))
+            if(V[x] != kk)
                 pc+=2;
-            pc+=2;
             break;
         case 0x5000: // 0x5XY0: Skip next instr. if V[X] == V[Y]
-            if((V[(opcode & 0x0F00) >> 8] ^ V[(opcode & 0x00F0) >> 4]) == false)
+            if(V[x] == V[y])
                  pc+=2;
-            pc+=2;
             break;
         case 0x6000: // 0x6XKK: V[X] = KK 
-            V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
-            pc+=2;
+            V[x] = kk;
             break;
         case 0x7000: // 0x7XKK: V[X] += KK
-            V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] + (opcode & 0x00FF);
-            pc+=2;
+            V[x] += kk;
             break;
         case 0x8000:
-            switch(opcode & 0x000F) {
+            switch(n) {
                 case 0x0000: // 0x8XY0: V[X] = V[Y]
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
-                    pc+=2;
+                    V[x] = V[y];
                     break;
                 case 0x0001: // 0x8XY1: V[X] OR V[Y]
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] | V[(opcode & 0x00F0) >> 4];
-                    pc+=2;
+                    V[x] |= V[y];
                     break;
                 case 0x0002: // 0x8XY2: V[X] AND V[Y]
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] & V[(opcode & 0x00F0) >> 4];
-                    pc+=2;
+                    V[x] &= V[y];
                     break;
                 case 0x0003: // 0x8XY3: V[X] XOR V[Y]
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] ^ V[(opcode & 0x00F0) >> 4];
-                    pc+=2;
+                    V[x] ^= V[y];
                     break;
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
-                    V[0xF] = 0;
-                    if(V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) >> 4] > 255)
-                        V[0xF] = 1;
-                    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] + V[(opcode & 0x00F0) > 4]) & 0x00FF; // store only lowest 8 bits
-                    pc+=2;
+                    // if(V[y] > (0xFF - V[x]))
+                    //     VF = 1;
+                    // else
+                    //     VF = 0;
+                    // V[x] += V[y];
+                    VF = (V[x] + V[y]) > 255;
+                    V[x] = (V[x] + V[y]) & 0x00FF; // store only lowest 8 bits
                     break;
                 case 0x0005: // 0x8XY5: V[X] SUB V[Y]
-                    V[0xF] = V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4];
-                    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x0F00) >> 8] - V[(opcode & 0x00F0) >> 4]) & 0x00FF;
-                    pc+=2;
+                    VF = V[x] > V[y];
+                    V[x] = (V[x] - V[y]) & 0x00FF;
                     break;
                 case 0x0006: // 0x8XY6: V[X] = V[X] / 2 
-                    V[0xF] = V[(opcode & 0x0F00) >> 8] & 1; // check if last bit is 1
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] >> 1;
-                    pc+=2;
+                    VF = V[x] & 0x0001; // check if last bit is 1
+                    V[x] = V[x] >> 1;
                     break;
                 case 0x0007: // 0x8XY7: V[X] SUBN V[Y]
-                    V[0xF] = V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 8];
-                    V[(opcode & 0x0F00) >> 8] = (V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8]) & 0x00FF;
-                    pc+=2;
+                    VF = V[y] > V[x];
+                    V[x] = (V[y] - V[x]) & 0x00FF;
                     break;
                 case 0x000E: // 0x8XYE: V[X] = V[X] * 2 
-                    V[0xF] = ((V[(opcode & 0x0F00) >> 8]) >> 15) & 1; // set to most significant bit of
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x0F00) >> 8] << 1;
-                    pc+=2;
+                    VF = V[x] & 0x8000; // set to most significant bit of
+                    V[x] = V[x] << 1;
                     break;
             }
             break;
         case 0x9000: // 0x9XY0: Skip next instr. if V[X] != V[Y]
-            if(V[(opcode & 0x0F00) >> 8] ^ V[(opcode & 0x00F0) >> 4])
+            if(V[x] != V[y])
                  pc+=2;
-            pc+=2;
             break;
         case 0xA000: // 0xANNN: I = NNN
-            I = opcode & 0x0FFF;
-            pc+=2;
+            I = nnn;
             break;
         case 0xB000: // 0xBNNN: pc = NNN + V[0]
-            pc = (opcode & 0x0FFF) + V[0];
+            pc = nnn + V[0];
             break;
         case 0xC000: // 0xCXKK: V[X] = random byte AND KK
             // TODO: Replace rand() with something else
-            V[(opcode & 0x0F00) >> 8] = (rand() % 256) & (opcode & 0x00FF);
-            pc+=2;
+            V[x] = (rand() % 256) & kk;
             break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
-            V[0xF] = 0;
-            for(unsigned char i = 0; i < (opcode & 0x000F); i++) {
-                unsigned short y = (((opcode & 0x00F0) >> 4) + i);
+            // std::cout << "x = " << x << ", y = " << y << std::endl;
+            VF = 0;
+            // std::cout << "Drawing!" << std::endl;
+            for(unsigned char i = 0; i < n; i++) {
+                unsigned short yrow = y + i;
                 unsigned char row = (*memory)[I+i];
                 for(unsigned char j = 0; j < 8; j++) {
-                    unsigned short x = (((opcode & 0x0F00) >> 8) + j);
+                    unsigned short xline = x + j;
                     bool curr_bit = (row >> (7-j)) & 1;
-                    Pixel& pixel = screen->getPixel(x, y);
-                    // std::cout << "x = " << x << ", y = " << y << std::endl;
-                    if(pixel.getState() && !curr_bit) {
-                        V[0xF] = 1;
+                    Pixel* pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?
+                    // std::cout << "x = " << xline << ", y = " << yrow << std::endl;
+                    if(pixel->getState() && !curr_bit) {
+                        VF = 1;
                     }
-                    pixel.setState(true);
+                    pixel->setState(curr_bit);
                 }
             }
             drawFlag = true;
-            pc += 2;
             break;
         case 0xE000:
-            switch(opcode & 0x00FF){
+            switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V[X] is pressed
                     // TO BO IMPLEMENTED!!!!
                     std::cout << "Not implemented yet!" << std::endl;
-                    pc+=2;
                     break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V[X] is NOT pressed
                     // TO BO IMPLEMENTED!!!!
                     std::cout << "Not implemented yet!" << std::endl;
-                    pc+=2;
                     break;
                 default:
                     unknownOpcode(opcode);
@@ -208,46 +216,37 @@ void Chip8::emulateCycle() {
             }
             break;
         case 0xF000:
-            switch(opcode & 0x00FF){
+            switch(kk){
                 case 0x0007: // 0xFX07: V[X] = delay_timer
-                    V[(opcode & 0x0F00) >> 8] = delay_timer;
-                    pc+=2;
+                    V[x] = delay_timer;
                     break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
                     std::cout << "Not implemented yet!" << std::endl;
-                    pc+=2;
                     break;
                 case 0x0015: // 0xFX15: delay_timer = V[X]
-                    delay_timer = V[(opcode & 0x0F00) >> 8];
-                    pc+=2;
+                    delay_timer = V[x];
                     break;
                 case 0x0018: // 0xFX18: sound_timer = V[X]
-                    sound_timer = V[(opcode & 0x0F00) >> 8];
-                    pc+=2;
+                    sound_timer = V[x];
                     break;
                 case 0x001E: // 0xFX1E: I = I + V[X]
-                    I = I + V[(opcode & 0x0F00) >> 8];
-                    pc+=2;
+                    I = I + V[x];
                     break;
                 case 0x0029: // 0xFX29: I = location_of_sprite_for_digit_V[X]
                     std::cout << "Not implemented yet!" << std::endl;
-                    pc+=2;
                     break;
                 case 0x0033: // 0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2
-                    (*memory)[I+2] = V[(opcode & 0x0F00) >> 8] % 10; // ones
-                    (*memory)[I+1] = (V[(opcode & 0x0EFF) >> 8] / 10) % 10; // tens
-                    (*memory)[I] = (V[(opcode & 0x0F00) >> 8] / 100) % 10; // hundreds
-                    pc+=2;
+                    (*memory)[I] = V[x] / 100; // ones
+                    (*memory)[I+1] = (V[x] / 10) % 10; // tens
+                    (*memory)[I+2] = (V[x] % 100) % 10; // hundreds
                     break;
                 case 0x0055: // 0xFX55: Store registers V[0x0] through V[X] in memory starting at location I
-                    for(unsigned char i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
+                    for(unsigned char i = 0; i <= (x); ++i)
                         (*memory)[I+i] = V[i];
-                    pc+=2;
                     break;
                 case 0x0065: // 0xFX65: Read registers V[0x0] through V[X] from memory starting at location I
-                    for(unsigned char i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
+                    for(unsigned char i = 0; i <= (x); ++i)
                         V[i] = (*memory)[I+i];
-                    pc+=2;
                     break;
             }
             break;
@@ -264,7 +263,6 @@ void Chip8::emulateCycle() {
             std::cout << "BEEP!\n";
         --sound_timer;
     }
-    ++nEmuCycle;
 }
 
 

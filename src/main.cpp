@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <string>
+#include <iostream>
 #include "chip8.hpp"
 
 int main()
@@ -44,16 +46,17 @@ int main()
 
     sf::Text text(welcomeMessage, font, 64);
     text.setFillColor(sf::Color::Green);
-    auto window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
+    sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
     window.setFramerateLimit(144);
     
     Chip8* myChip8 = new Chip8();
     myChip8->initialize();
-    myChip8->loadFile("../chip8-test-rom/test_opcode.ch8");
+    myChip8->loadFile("../roms/test/1-chip8-logo.ch8");
 
-
-    while (window.isOpen())
+    int i = 0;
+    while (window.isOpen() && i < 50)
     {
+        std::cout << std::dec << "#" << i << " ";
         for (auto event = sf::Event{}; window.pollEvent(event);)
         {
             if (event.type == sf::Event::Closed)
@@ -61,22 +64,12 @@ int main()
                 window.close();
             }
         }
-        
-        // myChip8->emulateCycle();
 
+        myChip8->emulateCycle();
 
-        // if(myChip8->drawFlag) {
-            window.clear();
-            for(unsigned short i = 0; i < Screen::height; i++) {
-                for(unsigned short j = 0; j < Screen::width; j++) {
-                    float x = float(j * Pixel::dim);
-                    float y = float(i * Pixel::dim);
-                    Pixel pixel = myChip8->screen->getPixel(x, y);
-                    window.draw(pixel.getShape());
-                }
-            }
-            window.display();
-        // }
+        if(myChip8->drawFlag)
+            myChip8->drawScreen(window);
+        i++;
     }
 
     return 0;

@@ -83,8 +83,8 @@ public:
         }
     }
 
-    inline Pixel& getPixel(const unsigned short& x, const unsigned short& y) {
-        return *(*pixels)[(y % height) * width + (x % width)];
+    inline Pixel* getPixel(const unsigned short& x, const unsigned short& y) {
+        return (*pixels)[(y % height) * width + (x % width)];
     }
     
     ~Screen() = default;
