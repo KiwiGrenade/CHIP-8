@@ -28,6 +28,7 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
 }
 
 void Chip8::initialize() {
+    cycleNumber = 0;
     pc = Memory::programBegin;
     sound_timer = 0;
     delay_timer = 0;
@@ -81,15 +82,12 @@ void Chip8::emulateCycle() {
     unsigned char   kk  =    opcode & 0x00FE;
     unsigned char&  VF  =    V[0xF];
 
-    // std::cout << "Opcode: " << std::hex << opcode << std::endl\
-              << "x:      " << x << std::endl\
-              << "y:      " << y << std::endl;
-
-    switch(opcode & 0xF000) { // check first 4 bits
+        switch(opcode & 0xF000) { // check first 4 bits
         case 0x0000:
             switch (n) { // check nibble
             case 0x0000: // 0x00E0: Clear screen
                 screen->clear();
+                drawFlag = true;
                 break;
             case 0x000E: // 0x00EE: Return from subroutine
                 pc = stack[sp];
@@ -182,17 +180,18 @@ void Chip8::emulateCycle() {
             V[x] = (rand() % 256) & kk;
             break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
-            // std::cout << "x = " << x << ", y = " << y << std::endl;
+     // std::cout << std::dec << cycleNumber << " Opcode: " << std::hex << opcode << std::endl\
+              << "x:      " << x << std::endl\
+              << "y:      " << y << std::endl;
+
             VF = 0;
-            // std::cout << "Drawing!" << std::endl;
             for(unsigned char i = 0; i < n; ++i) {
-                unsigned short yrow = y + i;
+                unsigned short yrow = V[y] + i;
                 unsigned char row = (*memory)[I+i];
                 for(unsigned char j = 0; j < 8; ++j) {
-                    unsigned short xline = x + j;
+                    unsigned short xline = V[x] + j;
                     bool curr_bit = (row >> (7-j)) & 1;
                     std::shared_ptr<Pixel> pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?
-                    // std::cout << "x = " << xline << ", y = " << yrow << std::endl;
                     if(pixel->getState() && !curr_bit) {
                         VF = 1;
                     }
@@ -264,6 +263,7 @@ void Chip8::emulateCycle() {
             std::cout << "BEEP!\n";
         --sound_timer;
     }
+    ++cycleNumber;
 }
 
 

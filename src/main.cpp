@@ -25,7 +25,7 @@ int main()
     myChip8 = std::make_unique<Chip8>(); 
     myChip8->initialize();
     myChip8->loadFile("../roms/test/1-chip8-logo.ch8");
-    myChip8->memory->printProgram();
+    // myChip8->memory->printProgram();
 
     while (window.isOpen())
     {

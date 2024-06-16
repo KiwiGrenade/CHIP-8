@@ -6,6 +6,7 @@
 #include "components.hpp"
 
 struct Chip8 {
+    size_t cycleNumber;
     bool drawFlag;
     unsigned short pc;
     unsigned short opcode; // current opcode (opcodes are 2 bytes)
