@@ -6,8 +6,6 @@
 
 int main()
 {
-    std::string welcomeMessage {"CHIP-8 will be here soon! WORK IN PROGRESS"};
-
     sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
     window.setFramerateLimit(60);
     
@@ -15,6 +13,7 @@ int main()
     myChip8 = std::make_unique<Chip8>(); 
     myChip8->initialize();
     myChip8->loadFile("../roms/test/1-chip8-logo.ch8");
+    myChip8->memory->printProgram();
 
     while (window.isOpen())
     {

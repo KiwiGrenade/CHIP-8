@@ -74,6 +74,7 @@ struct Memory : Component {
 
 class Pixel {
     sf::RectangleShape pix;
+
 public:
     static constexpr float dim = 10.f;
     
@@ -92,8 +93,7 @@ public:
     ~Pixel() = default;
 };
 
-class Screen : Component {
-public:
+struct Screen : Component {
     static constexpr unsigned short height = 32;
     static constexpr unsigned short width = 64;
     static constexpr unsigned short nPixels = width * height;
@@ -101,11 +101,9 @@ public:
     Screen(){
         // set pixel position 
         for(unsigned short i = 0; i < height; ++i) {
+            float y = float(i * Pixel::dim);
             for(unsigned short j = 0; j < width; ++j) {
                 float x = float(j * Pixel::dim);
-                float y = float(i * Pixel::dim);
-                std::cout << std::dec << "x = " << x << ", y = " << y << std::endl; 
-
                 pixels[i * width + j] = std::make_shared<Pixel>(Pixel(sf::Vector2f(x, y)));
             }
         }

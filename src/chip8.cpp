@@ -14,7 +14,7 @@ Chip8::Chip8() {
     screen = std::make_unique<Screen>();
     std::srand(time(nullptr));
 }
-//
+
 void Chip8::drawScreen(sf::RenderWindow& window) {
     for(unsigned short i = 0; i < Screen::height; ++i) {
         for(unsigned short j = 0; j < Screen::width; ++j) {
@@ -77,7 +77,7 @@ void Chip8::emulateCycle() {
     unsigned char   n   =    opcode & 0x000F;
     unsigned short  x   =   (opcode & 0x0F00) >> 8;
     unsigned short  y   =   (opcode & 0x00F0) >> 4;
-    unsigned char   kk  =    opcode & 0x00FE;
+    unsigned short kk  =    opcode & 0x00FF;
     unsigned char&  VF  =    V[0xF];
 
         switch(opcode & 0xF000) { // check first 4 bits
@@ -137,11 +137,6 @@ void Chip8::emulateCycle() {
                     V[x] ^= V[y];
                     break;
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
-                    // if(V[y] > (0xFF - V[x]))
-                    //     VF = 1;
-                    // else
-                    //     VF = 0;
-                    // V[x] += V[y];
                     VF = (V[x] + V[y]) > 255;
                     V[x] = (V[x] + V[y]) & 0x00FF; // store only lowest 8 bits
                     break;
@@ -183,14 +178,15 @@ void Chip8::emulateCycle() {
               << "y:      " << y << std::endl;
 
             VF = 0;
-            for(unsigned char i = 0; i < n; ++i) {
+            for(unsigned short i = 0; i < n; ++i) {
                 unsigned short yrow = V[y] + i;
                 unsigned char row = (*memory)[I+i];
                 for(unsigned char j = 0; j < 8; ++j) {
-                    unsigned short xline = V[x] + j;
+                    unsigned char xcol = V[x] + j;
                     bool curr_bit = (row >> (8-j-1)) & 1;
-                    
-                    std::shared_ptr<Pixel> pixel = screen->getPixel(xline, yrow); // x: 31, 33 and 63 do not work! pixels aren't showing. Why?
+
+                    std::shared_ptr<Pixel> pixel = screen->getPixel(xcol, yrow);
+
                     if(pixel->getState() && !curr_bit) {
                         VF = 1;
                     }
