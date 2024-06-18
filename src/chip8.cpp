@@ -77,7 +77,7 @@ void Chip8::emulateCycle() {
     unsigned char   n   =    opcode & 0x000F;
     unsigned short  x   =   (opcode & 0x0F00) >> 8;
     unsigned short  y   =   (opcode & 0x00F0) >> 4;
-    unsigned short kk  =    opcode & 0x00FF;
+    unsigned short kk   =    opcode & 0x00FF;
     unsigned char&  VF  =    V[0xF];
 
         switch(opcode & 0xF000) { // check first 4 bits
@@ -97,8 +97,7 @@ void Chip8::emulateCycle() {
             }
             break;
         case 0x1000: // 0x1NNN: Jump to location NNN
-            pc = nnn;
-            break;
+            pc = nnn; break;
         case 0x2000: // 0x2NNN: Call subroutine at NNN
             stack[sp] = pc-2; // earlier incremented by 2
             ++sp;
@@ -117,45 +116,34 @@ void Chip8::emulateCycle() {
                  pc+=2;
             break;
         case 0x6000: // 0x6XKK: V[X] = KK 
-            V[x] = kk;
-            break;
+            V[x] = kk; break;
         case 0x7000: // 0x7XKK: V[X] += KK
-            V[x] += kk;
-            break;
+            V[x] += kk; break;
         case 0x8000:
             switch(n) {
                 case 0x0000: // 0x8XY0: V[X] = V[Y]
-                    V[x] = V[y];
-                    break;
+                    V[x] = V[y]; break;
                 case 0x0001: // 0x8XY1: V[X] OR V[Y]
-                    V[x] |= V[y];
-                    break;
+                    V[x] |= V[y]; break;
                 case 0x0002: // 0x8XY2: V[X] AND V[Y]
-                    V[x] &= V[y];
-                    break;
+                    V[x] &= V[y]; break;
                 case 0x0003: // 0x8XY3: V[X] XOR V[Y]
-                    V[x] ^= V[y];
-                    break;
+                    V[x] ^= V[y]; break;
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
                     VF = (V[x] + V[y]) > 255;
-                    V[x] = (V[x] + V[y]) & 0x00FF; // store only lowest 8 bits
-                    break;
+                    V[x] = (V[x] + V[y]) & 0x00FF; // store only lowest 8 bits break;
                 case 0x0005: // 0x8XY5: V[X] SUB V[Y]
                     VF = V[x] > V[y];
-                    V[x] = (V[x] - V[y]) & 0x00FF;
-                    break;
+                    V[x] = (V[x] - V[y]) & 0x00FF; break;
                 case 0x0006: // 0x8XY6: V[X] = V[X] / 2 
                     VF = V[x] & 0x0001; // check if last bit is 1
-                    V[x] = V[x] >> 1;
-                    break;
+                    V[x] = V[x] >> 1; break;
                 case 0x0007: // 0x8XY7: V[X] SUBN V[Y]
                     VF = V[y] > V[x];
-                    V[x] = (V[y] - V[x]) & 0x00FF;
-                    break;
+                    V[x] = (V[y] - V[x]) & 0x00FF; break;
                 case 0x000E: // 0x8XYE: V[X] = V[X] * 2 
                     VF = V[x] & 0x8000; // set to most significant bit of
-                    V[x] = V[x] << 1;
-                    break;
+                    V[x] = V[x] << 1; break;
             }
             break;
         case 0x9000: // 0x9XY0: Skip next instr. if V[X] != V[Y]
@@ -163,20 +151,13 @@ void Chip8::emulateCycle() {
                  pc+=2;
             break;
         case 0xA000: // 0xANNN: I = NNN
-            I = nnn;
-            break;
+            I = nnn; break;
         case 0xB000: // 0xBNNN: pc = NNN + V[0]
-            pc = nnn + V[0];
-            break;
+            pc = nnn + V[0]; break;
         case 0xC000: // 0xCXKK: V[X] = random byte AND KK
             // TODO: Replace rand() with something else
-            V[x] = (rand() % 256) & kk;
-            break;
+            V[x] = (rand() % 256) & kk; break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
-        // std::cout << std::dec << cycleNumber << " Opcode: " << std::hex << opcode << std::endl\
-              << "x:      " << x << std::endl\
-              << "y:      " << y << std::endl;
-
             VF = 0;
             for(unsigned short i = 0; i < n; ++i) {
                 unsigned short yrow = V[y] + i;
@@ -199,37 +180,28 @@ void Chip8::emulateCycle() {
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V[X] is pressed
                     // TO BO IMPLEMENTED!!!!
-                    std::cout << "Not implemented yet!" << std::endl;
-                    break;
+                    std::cout << "Not implemented yet!" << std::endl; break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V[X] is NOT pressed
                     // TO BO IMPLEMENTED!!!!
-                    std::cout << "Not implemented yet!" << std::endl;
-                    break;
+                    std::cout << "Not implemented yet!" << std::endl; break;
                 default:
-                    unknownOpcode(opcode);
-                    break;
+                    unknownOpcode(opcode); break;
             }
             break;
         case 0xF000:
             switch(kk){
                 case 0x0007: // 0xFX07: V[X] = delay_timer
-                    V[x] = delay_timer;
-                    break;
+                    V[x] = delay_timer; break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
-                    std::cout << "Not implemented yet!" << std::endl;
-                    break;
+                    std::cout << "Not implemented yet!" << std::endl; break;
                 case 0x0015: // 0xFX15: delay_timer = V[X]
-                    delay_timer = V[x];
-                    break;
+                    delay_timer = V[x]; break;
                 case 0x0018: // 0xFX18: sound_timer = V[X]
-                    sound_timer = V[x];
-                    break;
+                    sound_timer = V[x]; break;
                 case 0x001E: // 0xFX1E: I = I + V[X]
-                    I = I + V[x];
-                    break;
+                    I = I + V[x]; break;
                 case 0x0029: // 0xFX29: I = location_of_sprite_for_digit_V[X]
-                    std::cout << "Not implemented yet!" << std::endl;
-                    break;
+                    std::cout << "Not implemented yet!" << std::endl; break;
                 case 0x0033: // 0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2
                     (*memory)[I] = V[x] / 100; // ones
                     (*memory)[I+1] = (V[x] / 10) % 10; // tens
@@ -247,8 +219,7 @@ void Chip8::emulateCycle() {
             break;
         default:
             unknownOpcode(opcode);
-            break;
-    }
+            break; }
 
     if(delay_timer > 0)
         --delay_timer;
