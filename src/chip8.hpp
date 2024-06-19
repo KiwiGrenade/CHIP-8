@@ -1,9 +1,10 @@
 #ifndef CHIP8_HPP
 #define CHIP8_HPP
 
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <memory>
-#include "components.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include "display.hpp"
+#include "memory.hpp"
 
 struct Chip8 {
     size_t cycleNumber;
