@@ -6,7 +6,16 @@
 #include "display.hpp"
 #include "memory.hpp"
 
+enum Mode{
+    Normal,
+    Verbose,
+    Debug
+};
+
 struct Chip8 {
+    static Mode mode;
+    size_t nCycle;
+    
     bool            drawFlag;
     unsigned short  pc;      // program counter
     unsigned short  opcode;  // current opcode (opcodes are 2 bytes)
@@ -21,8 +30,7 @@ struct Chip8 {
     std::unique_ptr<Memory> memory;
     std::unique_ptr<Screen> screen;
 
-    Chip8();
-    void initialize();
+    Chip8(const Mode& _mode); // initialize all components
     void loadFile(const std::string& filename);
     void emulateCycle();
     void drawScreen(sf::RenderWindow& window);

@@ -1,4 +1,5 @@
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -9,10 +10,29 @@
 #include <filesystem>
 #include "chip8.hpp"
 
-Chip8::Chip8() {
+Mode Chip8::mode;
+
+Chip8::Chip8(const Mode& _mode) {
+    std::srand(time(nullptr));
+
+    nCycle = 0;
+    mode = _mode;
+    pc = Memory::programBegin;
+    sound_timer = 0;
+    delay_timer = 0;
+    opcode = 0;
+    I = 0;
+    sp = 0;
+    drawFlag = false;
+
     memory = std::make_unique<Memory>();
     screen = std::make_unique<Screen>();
-    std::srand(time(nullptr));
+    
+    screen->clear();
+    std::fill(std::begin(stack), std::end(stack), 0);
+    std::fill(std::begin(V), std::end(V), 0);
+    memory->clear();
+    memory->loadFontset();
 }
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
@@ -23,26 +43,6 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
         }
     }
     window.display();
-}
-
-void Chip8::initialize() {
-    pc = Memory::programBegin;
-    sound_timer = 0;
-    delay_timer = 0;
-    opcode = 0;
-    I = 0;
-    sp = 0;
-    drawFlag = false;
-
-    screen->clear();
-    std::fill(std::begin(stack), std::end(stack), 0);
-    // for(unsigned short a : stack) // clear stack
-    //     a = 0;
-    std::fill(std::begin(V), std::end(V), 0);
-    // for(unsigned char a : V) //clear registers
-    //     a = 0;
-    memory->clear();
-    memory->loadFontset();
 }
 
 void Chip8::loadFile(const std::string& filename) {
@@ -70,18 +70,26 @@ void unknownOpcode(const unsigned short& opcode) {
 }
 
 void Chip8::emulateCycle() {
-    drawFlag = false;
     opcode = memory->getOpcode(pc);
     pc+=2;
 
     unsigned short  nnn =    opcode & 0x0FFF;
-    unsigned char   n   =    opcode & 0x000F;
+    unsigned short  n   =    opcode & 0x000F;
     unsigned short  x   =   (opcode & 0x0F00) >> 8;
     unsigned short  y   =   (opcode & 0x00F0) >> 4;
-    unsigned short kk   =    opcode & 0x00FF;
+    unsigned short  kk  =    opcode & 0x00FF;
     unsigned char&  VF  =    V[0xF];
 
-        switch(opcode & 0xF000) { // check first 4 bits
+    drawFlag = false;
+
+    // TODO: VF not showing - fix this
+    if(Chip8::mode != Normal) {
+        std::cout   << "| cycle # | opcode | x | y | kk | nnn | n | VF |" << std::endl
+            << " | " << std::dec << nCycle << " | " << std::hex << opcode << " | " << x << " | " << y 
+            << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " |"<< std::endl;
+    }
+    
+    switch(opcode & 0xF000) { // check first 4 bits
         case 0x0000:
             switch (n) { // check nibble
             case 0x0000: // 0x00E0: Clear screen
@@ -145,6 +153,8 @@ void Chip8::emulateCycle() {
                 case 0x000E: // 0x8XYE: V[X] = V[X] * 2 
                     VF = V[x] & 0x8000; // set to most significant bit of
                     V[x] = V[x] << 1; break;
+                default:
+                    unknownOpcode(opcode); break;
             }
             break;
         case 0x9000: // 0x9XY0: Skip next instr. if V[X] != V[Y]
@@ -180,6 +190,7 @@ void Chip8::emulateCycle() {
         case 0xE000:
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V[X] is pressed
+                    // if(sf::Keyboard::isKeyPressed())
                     // TO BO IMPLEMENTED!!!!
                     std::cout << "Not implemented yet!" << std::endl; break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V[X] is NOT pressed
@@ -216,11 +227,14 @@ void Chip8::emulateCycle() {
                     for(unsigned char i = 0; i <= (x); ++i)
                         V[i] = (*memory)[I+i];
                     break;
+                default:
+                    unknownOpcode(opcode); break;
             }
             break;
         default:
             unknownOpcode(opcode);
-            break; }
+            break; 
+    }
 
     if(delay_timer > 0)
         --delay_timer;
@@ -230,6 +244,7 @@ void Chip8::emulateCycle() {
             std::cout << "BEEP!\n";
         --sound_timer;
     }
+    nCycle++;
 }
 
 
