@@ -1,6 +1,11 @@
-build
-out
-.cache
-.idea
-.vs
-.vscode
+__pycache__/
+venv/
+.idea/
+.vscode/
+*.zip
+*.tar.gz
+*build*/
+*.class
+*.lst
+# clangd lsp
+.cache/
