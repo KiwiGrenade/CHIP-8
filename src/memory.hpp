@@ -2,8 +2,6 @@
 #define MEMORY_HPP
 
 #include <array>
-#include <iostream>
-#include <memory>
 #include <vector>
 #include "component.hpp"
 

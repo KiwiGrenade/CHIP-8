@@ -1,4 +1,6 @@
 #include "memory.hpp"
+#include <iostream>
+
 void Memory::clear() { std::fill(arr.begin(), arr.end(), 0); }
 
 void Memory::loadProgram(std::vector<unsigned char>& buffer) {
