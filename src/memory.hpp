@@ -12,9 +12,10 @@
 struct Memory : Component {
     static constexpr unsigned short size = 4096;
     static constexpr unsigned short programBegin = 512;
+    std::array<unsigned char, size> arr{0};
     unsigned short programSize = 0;
 
-    unsigned char fontset [80] { 
+    static constexpr unsigned char fontset [80] { 
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -33,13 +34,12 @@ struct Memory : Component {
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
     
-    std::array<unsigned char, size> arr{0};
 
     Memory() = default;
 
     void clear();
 
-    void loadProgram(std::vector<unsigned char>& buffer);
+    void loadProgram(std::vector<unsigned char>& program);
 
     void printProgram();
 

@@ -26,7 +26,6 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
 }
 
 void Chip8::initialize() {
-    cycleNumber = 0;
     pc = Memory::programBegin;
     sound_timer = 0;
     delay_timer = 0;
@@ -36,10 +35,12 @@ void Chip8::initialize() {
     drawFlag = false;
 
     screen->clear();
-    for(unsigned short a : stack) // clear stack
-        a = 0;
-    for(unsigned char a : V) //clear registers
-        a = 0;
+    std::fill(std::begin(stack), std::end(stack), 0);
+    // for(unsigned short a : stack) // clear stack
+    //     a = 0;
+    std::fill(std::begin(V), std::end(V), 0);
+    // for(unsigned char a : V) //clear registers
+    //     a = 0;
     memory->clear();
     memory->loadFontset();
 }
@@ -229,7 +230,6 @@ void Chip8::emulateCycle() {
             std::cout << "BEEP!\n";
         --sound_timer;
     }
-    ++cycleNumber;
 }
 
 

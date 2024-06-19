@@ -27,14 +27,14 @@ struct Screen : Component {
     static constexpr unsigned short height = 32;
     static constexpr unsigned short width = 64;
     static constexpr unsigned short nPixels = width * height;
+    std::array<std::shared_ptr<Pixel>, nPixels> pixels;
 
     Screen();
+
     void clear();
-
     std::shared_ptr<Pixel> getPixel(const unsigned short& x, const unsigned short& y);
-    ~Screen() = default;
-    std::array<std::shared_ptr<Pixel>, nPixels> pixels;
-};
 
+    ~Screen() = default;
+};
 
 #endif // DISPLAY_HPP
