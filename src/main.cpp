@@ -36,18 +36,16 @@ int main(int argc, char *argv[])
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            // else if (event.type == sf::Event::KeyReleased) {
-                // if (event.key.scancode == sf::Keyboard::Scan::Enter) {
-                    // myChip8->emulateCycle();
-                    // if(myChip8->drawFlag)
-                    //     myChip8->drawScreen(window);
-            //     }
-            // }
+            else if (   event.type == sf::Event::KeyReleased
+                    &&  event.key.scancode == sf::Keyboard::Scan::Enter) {
+                myChip8->emulateCycle();
+                if(myChip8->drawFlag)
+                    myChip8->drawScreen(window);
+            }
         }
         myChip8->emulateCycle();
         if(myChip8->drawFlag)
             myChip8->drawScreen(window);
-
     }
 
     return 0;

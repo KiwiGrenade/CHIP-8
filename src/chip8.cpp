@@ -190,12 +190,13 @@ void Chip8::emulateCycle() {
         case 0xE000:
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V[X] is pressed
-                    // if(sf::Keyboard::isKeyPressed())
-                    // TO BO IMPLEMENTED!!!!
-                    std::cout << "Not implemented yet!" << std::endl; break;
+                    if(sf::Keyboard::isKeyPressed(getKey(x)) == true)
+                        pc+=2;
+                    break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V[X] is NOT pressed
-                    // TO BO IMPLEMENTED!!!!
-                    std::cout << "Not implemented yet!" << std::endl; break;
+                    if(sf::Keyboard::isKeyPressed(getKey(x)) == false)
+                        pc+=2;
+                    break;
                 default:
                     unknownOpcode(opcode); break;
             }
@@ -247,4 +248,42 @@ void Chip8::emulateCycle() {
     nCycle++;
 }
 
+sf::Keyboard::Key Chip8::getKey(const unsigned char& x) {
+    sf::Keyboard::Key key;
+    switch(V[x]) {
+        case 0x1:
+            key = sf::Keyboard::Num1; break;
+        case 0x2:
+            key = sf::Keyboard::Num2; break;
+        case 0x3:
+            key = sf::Keyboard::Num3; break;
+        case 0x4:
+            key = sf::Keyboard::Q; break;
+        case 0x5:
+            key = sf::Keyboard::W; break;
+        case 0x6:
+            key = sf::Keyboard::E; break;
+        case 0x7:
+            key = sf::Keyboard::A; break;
+        case 0x8:
+            key = sf::Keyboard::S; break;
+        case 0x9:
+            key = sf::Keyboard::D; break;
+        case 0xA:
+            key = sf::Keyboard::Z; break;
+        case 0xB:
+            key = sf::Keyboard::C; break;
+        case 0xC:
+            key = sf::Keyboard::Num4; break;
+        case 0xD:
+            key = sf::Keyboard::R; break;
+        case 0xE:
+            key = sf::Keyboard::F; break;
+        case 0xF:
+            key = sf::Keyboard::V; break;
+        case 0x0:
+            key = sf::Keyboard::X; break;
+    };
+    return key;
+}
 

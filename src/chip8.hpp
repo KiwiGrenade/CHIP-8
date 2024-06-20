@@ -34,6 +34,8 @@ struct Chip8 {
     void loadFile(const std::string& filename);
     void emulateCycle();
     void drawScreen(sf::RenderWindow& window);
+private:
+    sf::Keyboard::Key getKey(const unsigned char& x); 
 };
 
 #endif //CHIP8_HPP
