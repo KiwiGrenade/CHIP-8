@@ -5,29 +5,48 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include "chip8.hpp"
+#include "utils.hpp"
+
+bool Options::verbose = false;
+bool Options::debug = false;
 
 int main(int argc, char *argv[])
 {
-    Mode mode = Mode::Normal;
-
     if(argc < 2) {
-        std::cout << "ERROR: Too few arguments!" << std::endl;
+        std::cerr << "ERROR: Too few arguments!" << std::endl;
         return 2;
     }
-    
-    // TODO: Add normal argument parsing
-    if(argc > 2)
-        mode = Mode::Verbose;
 
-    std::string inputFileName = argv[1];
+    std::string inputFileName;
+    for(size_t i = 1; i < argc; ++i) {
+        if(argv[i][0] == '-') {
+            for(size_t j = 1; argv[i][j] != '\0'; j++) {
+                char& c = argv[i][j];
+                if(c == 'v' || c == 'V')
+                    Options::verbose = true;
+                else if(c == 'd' || c == 'D')
+                    Options::debug = true;
+            }
+        }
+        else {
+            inputFileName = argv[i];
+        }
+    }
+
+    if(inputFileName.empty()) {
+        std::cerr << "ERROR: No input file path!" << std::endl;
+        return 2;
+    }
+
 
     sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};
     window.setFramerateLimit(60);
     
     std::unique_ptr<Chip8> myChip8;
-    myChip8 = std::make_unique<Chip8>(mode); 
+    myChip8 = std::make_unique<Chip8>();
     myChip8->loadFile(inputFileName);
-    myChip8->memory->printProgram();
+    if(Options::verbose)
+        myChip8->memory->printProgram();
 
     while (window.isOpen())
     {

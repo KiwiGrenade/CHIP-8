@@ -9,14 +9,12 @@
 #include <time.h>
 #include <filesystem>
 #include "chip8.hpp"
+#include "utils.hpp"
 
-Mode Chip8::mode;
-
-Chip8::Chip8(const Mode& _mode) {
+Chip8::Chip8() {
     std::srand(time(nullptr));
 
     nCycle = 0;
-    mode = _mode;
     pc = Memory::programBegin;
     sound_timer = 0;
     delay_timer = 0;
@@ -46,10 +44,14 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
 }
 
 void Chip8::loadFile(const std::string& filename) {
-    std::filesystem::path inputFilePath{filename};
-    auto length = std::filesystem::file_size(inputFilePath);
-    std::ifstream inputFile(filename, std::ios_base::binary);
+    std::filesystem::path filePath{filename};
+    if(std::filesystem::exists(filePath) == false) {
+        std::cerr << "ERROR: file " << filePath << " does not exist!" << std::endl;
+        exit(2);
+    }
 
+    auto length = std::filesystem::file_size(filePath);
+    std::ifstream inputFile(filename, std::ios_base::binary);
     if((length == 0) || (inputFile.is_open() == false) || inputFile.bad()) {
         std::cerr << "ERROR: Could not open file: " << filename << '\n';
         exit(2);
@@ -83,7 +85,7 @@ void Chip8::emulateCycle() {
     drawFlag = false;
 
     // TODO: VF not showing - fix this
-    if(Chip8::mode != Normal) {
+    if(Options::verbose) {
         std::cout   << "| cycle # | opcode | x | y | kk | nnn | n | VF |" << std::endl
             << " | " << std::dec << nCycle << " | " << std::hex << opcode << " | " << x << " | " << y 
             << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " |"<< std::endl;
@@ -206,7 +208,7 @@ void Chip8::emulateCycle() {
                 case 0x0007: // 0xFX07: V[X] = delay_timer
                     V[x] = delay_timer; break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
-                    std::cout << "Not implemented yet!" << std::endl; break;
+                    std::cerr << "Not implemented yet!" << std::endl; break;
                 case 0x0015: // 0xFX15: delay_timer = V[X]
                     delay_timer = V[x]; break;
                 case 0x0018: // 0xFX18: sound_timer = V[X]
@@ -214,7 +216,7 @@ void Chip8::emulateCycle() {
                 case 0x001E: // 0xFX1E: I = I + V[X]
                     I = I + V[x]; break;
                 case 0x0029: // 0xFX29: I = location_of_sprite_for_digit_V[X]
-                    std::cout << "Not implemented yet!" << std::endl; break;
+                    std::cerr << "Not implemented yet!" << std::endl; break;
                 case 0x0033: // 0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2
                     (*memory)[I] = V[x] / 100; // ones
                     (*memory)[I+1] = (V[x] / 10) % 10; // tens

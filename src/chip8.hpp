@@ -6,14 +6,7 @@
 #include "display.hpp"
 #include "memory.hpp"
 
-enum Mode{
-    Normal,
-    Verbose,
-    Debug
-};
-
 struct Chip8 {
-    static Mode mode;
     size_t nCycle;
     
     bool            drawFlag;
@@ -30,7 +23,7 @@ struct Chip8 {
     std::unique_ptr<Memory> memory;
     std::unique_ptr<Screen> screen;
 
-    Chip8(const Mode& _mode); // initialize all components
+    Chip8(); // initialize all components
     void loadFile(const std::string& filename);
     void emulateCycle();
     void drawScreen(sf::RenderWindow& window);
