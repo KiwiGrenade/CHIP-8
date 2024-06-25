@@ -1,6 +1,5 @@
 #include <iostream>
 #include "memory.hpp"
-#include "utils.hpp"
 
 void Memory::clear() { std::fill(arr.begin(), arr.end(), 0); }
 

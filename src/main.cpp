@@ -13,7 +13,7 @@ bool Options::debug = false;
 int main(int argc, char *argv[])
 {
     if(argc < 2) {
-        std::cerr << "ERROR: Too few arguments!" << std::endl;
+        error("Too few arguments!");
         return 2;
     }
 
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     }
 
     if(inputFileName.empty()) {
-        std::cerr << "ERROR: No input file path!" << std::endl;
+        error("No input file path!");
         return 2;
     }
 

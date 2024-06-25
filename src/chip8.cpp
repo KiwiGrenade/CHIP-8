@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <time.h>
@@ -46,15 +47,13 @@ void Chip8::drawScreen(sf::RenderWindow& window) {
 void Chip8::loadFile(const std::string& filename) {
     std::filesystem::path filePath{filename};
     if(std::filesystem::exists(filePath) == false) {
-        std::cerr << "ERROR: file " << filePath << " does not exist!" << std::endl;
-        exit(2);
+        error("File " + filePath.string() + " does not exist!");
     }
 
     auto length = std::filesystem::file_size(filePath);
     std::ifstream inputFile(filename, std::ios_base::binary);
     if((length == 0) || (inputFile.is_open() == false) || inputFile.bad()) {
-        std::cerr << "ERROR: Could not open file: " << filename << '\n';
-        exit(2);
+        error("Could not open file: " + filePath.string());
     }
 
     std::vector<unsigned char> buffer(length);
@@ -67,7 +66,7 @@ void Chip8::loadFile(const std::string& filename) {
 }
 
 void unknownOpcode(const unsigned short& opcode) {
-    printf("Unknown opcode [0x0000]: 0x%X\n", opcode);
+    printf("Unknown opcode: 0x%04x\n", opcode);
     exit(2);
 }
 
@@ -94,17 +93,17 @@ void Chip8::emulateCycle() {
     switch(opcode & 0xF000) { // check first 4 bits
         case 0x0000:
             switch (n) { // check nibble
-            case 0x0000: // 0x00E0: Clear screen
-                screen->clear();
-                drawFlag = true;
-                break;
-            case 0x000E: // 0x00EE: Return from subroutine
-                pc = stack[sp];
-                --sp;
-                break;
-            default:
-                unknownOpcode(opcode);
-                break;
+                case 0x0000: // 0x00E0: Clear screen
+                    screen->clear();
+                    drawFlag = true;
+                    break;
+                case 0x000E: // 0x00EE: Return from subroutine
+                    pc = stack[sp];
+                    --sp;
+                    break;
+                default:
+                    unknownOpcode(opcode);
+                    break;
             }
             break;
         case 0x1000: // 0x1NNN: Jump to location NNN
