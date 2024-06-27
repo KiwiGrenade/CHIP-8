@@ -203,7 +203,7 @@ void Chip8::emulateCycle() {
             }
             break;
         case 0xF000:
-            switch(kk){
+            switch(opcode & 0x00FF){
                 case 0x0007: // 0xFX07: V[X] = delay_timer
                     V[x] = delay_timer; break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
