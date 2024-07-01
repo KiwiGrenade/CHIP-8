@@ -3,7 +3,7 @@ project(CHIP-8 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-Include(FetchContent)
+include(FetchContent)
 
 # FetchContent_Declare(
 #         Catch2
