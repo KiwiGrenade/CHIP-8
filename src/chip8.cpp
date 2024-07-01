@@ -142,7 +142,7 @@ void Chip8::emulateCycle() {
                     //FIXME: This is broken!
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
                     VF = (V[x] + V[y]) > 255;
-                    V[x] = (V[x] + V[y]) & 0x00FF; // store only lowest 8 bits break;
+                    V[x] = (V[x] + V[y]) & 0x00FF; break; // store only lowest 8 bits break;
                 case 0x0005: // 0x8XY5: V[X] SUB V[Y]
                     VF = V[x] > V[y];
                     V[x] = (V[x] - V[y]) & 0x00FF; break;
