@@ -4,9 +4,9 @@
 #include <iostream>
 #include <string>
 
-constexpr std::string YELLOW = "\e[36m";
-constexpr std::string RED = "\e[31m";
-constexpr std::string END = "\e[0m";
+std::string YELLOW = "\e[36m";
+std::string RED = "\e[31m";
+std::string END = "\e[0m";
 
 struct Options {
     static bool verbose;
