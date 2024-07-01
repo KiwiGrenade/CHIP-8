@@ -85,9 +85,9 @@ void Chip8::emulateCycle() {
 
     // TODO: VF not showing - fix this
     if(Options::verbose) {
-        std::cout   << "| cycle # | opcode | x | y | kk | nnn | n | VF |" << std::endl
+        std::cout   << "| cycle # | opcode | x | y | kk | nnn | n | VF | PC | SP" << std::endl
             << " | " << std::dec << nCycle << " | " << std::hex << opcode << " | " << x << " | " << y 
-            << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " |"<< std::endl;
+            << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc << " | " << sp << std::endl;
     }
     
     switch(opcode & 0xF000) { // check first 4 bits
@@ -98,8 +98,8 @@ void Chip8::emulateCycle() {
                     drawFlag = true;
                     break;
                 case 0x000E: // 0x00EE: Return from subroutine
-                    pc = stack[sp];
                     --sp;
+                    pc = stack[sp];
                     break;
                 default:
                     unknownOpcode(opcode);
@@ -109,7 +109,7 @@ void Chip8::emulateCycle() {
         case 0x1000: // 0x1NNN: Jump to location NNN
             pc = nnn; break;
         case 0x2000: // 0x2NNN: Call subroutine at NNN
-            stack[sp] = pc-2; // earlier incremented by 2
+            stack[sp] = pc; // earlier incremented by 2
             ++sp;
             pc = nnn;
             break;
