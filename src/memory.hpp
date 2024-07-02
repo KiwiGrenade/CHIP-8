@@ -11,11 +11,12 @@
 
 struct Memory : Component {
     static constexpr unsigned short size = 4096;
+    static constexpr unsigned short fontsetSize = 80;
     static constexpr unsigned short programBegin = 512;
     std::array<unsigned char, size> arr{0};
     unsigned short programSize = 0;
 
-    static constexpr unsigned char fontset [80] { 
+    static constexpr unsigned char fontset [fontsetSize] { 
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -46,6 +47,8 @@ struct Memory : Component {
     void loadFontset();
 
     const unsigned short getOpcode(const unsigned short& pc);
+
+    static const unsigned short getSpriteLocation(const unsigned char& digit);
 
     unsigned char& operator[](const std::size_t idx);
     const unsigned char& operator[](const std::size_t idx) const;

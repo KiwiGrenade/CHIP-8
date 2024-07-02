@@ -20,7 +20,7 @@ void Memory::printProgram() {
 }
 
 void Memory::loadFontset() {
-    for(unsigned short i ; i < 80; ++i)
+    for(unsigned short i = 0; i < fontsetSize; ++i)
         arr[i] = fontset[i];
 }
 

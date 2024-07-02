@@ -139,7 +139,6 @@ void Chip8::emulateCycle() {
                     V[x] &= V[y]; break;
                 case 0x0003: // 0x8XY3: V[X] XOR V[Y]
                     V[x] ^= V[y]; break;
-                    //FIXME: This is broken!
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
                     VF = (V[x] + V[y]) > 255;
                     V[x] = (V[x] + V[y]) & 0x00FF; break; // store only lowest 8 bits break;
@@ -216,7 +215,7 @@ void Chip8::emulateCycle() {
                 case 0x001E: // 0xFX1E: I = I + V[X]
                     I = I + V[x]; break;
                 case 0x0029: // 0xFX29: I = location_of_sprite_for_digit_V[X]
-                    std::cerr << "Not implemented yet!" << std::endl; break;
+                    I = 4 * V[x]; break;
                 case 0x0033: // 0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2
                     (*memory)[I] = V[x] / 100; // ones
                     (*memory)[I+1] = (V[x] / 10) % 10; // tens
