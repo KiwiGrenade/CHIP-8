@@ -41,7 +41,7 @@ POC for my Bachelor's Degree Thesis.
 ### Tests
 - [x] CHIP-8 splash screen
 - [x] IBM logo
-- [ ] Corax+ opcode test
+- [x] Corax+ opcode test
 - [ ] Flags test
 - [ ] Beep test
 - [ ] Keypad test

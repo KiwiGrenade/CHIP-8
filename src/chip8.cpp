@@ -83,11 +83,10 @@ void Chip8::emulateCycle() {
 
     drawFlag = false;
 
-    // TODO: VF not showing - fix this
     if(Options::verbose) {
         std::cout   << "| cycle # | opcode | x | y | kk | nnn | n | VF | PC | SP" << std::endl
             << " | " << std::dec << nCycle << " | " << std::hex << opcode << " | " << x << " | " << y 
-            << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc << " | " << sp << std::endl;
+            << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc-2 << " | " << sp << std::endl;
     }
     
     switch(opcode & 0xF000) { // check first 4 bits
@@ -171,21 +170,28 @@ void Chip8::emulateCycle() {
             V[x] = (rand() % 256) & kk; break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
             VF = 0;
+
             for(unsigned short i = 0; i < n; ++i) {
+
                 unsigned short yrow = V[y] + i;
                 unsigned char row = (*memory)[I+i];
+
                 for(unsigned char j = 0; j < 8; ++j) {
-                    unsigned char xcol = V[x] + j;
+
+                    unsigned short xcol = V[x] + j;
                     bool curr_bit = (row >> (8-j-1)) & 1;
 
-                    std::shared_ptr<Pixel> pixel = screen->getPixel(xcol, yrow);
+                    if(curr_bit) {
+                        std::shared_ptr<Pixel> pixel = screen->getPixel(xcol, yrow);
 
-                    if(pixel->getState() && !curr_bit) {
-                        VF = 1;
+                        if(pixel->getState() ^ curr_bit) {
+                            pixel->setState(curr_bit);
+                            VF = 1;
+                        }
                     }
-                    pixel->setState(curr_bit);
                 }
             }
+
             drawFlag = true;
             break;
         case 0xE000:
@@ -207,6 +213,7 @@ void Chip8::emulateCycle() {
                 case 0x0007: // 0xFX07: V[X] = delay_timer
                     V[x] = delay_timer; break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
+                    
                     std::cerr << "Not implemented yet!" << std::endl; break;
                 case 0x0015: // 0xFX15: delay_timer = V[X]
                     delay_timer = V[x]; break;
