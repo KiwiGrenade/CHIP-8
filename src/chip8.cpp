@@ -74,12 +74,13 @@ void Chip8::emulateCycle() {
     opcode = memory->getOpcode(pc);
     pc+=2;
 
-    unsigned short  nnn =    opcode & 0x0FFF;
-    unsigned short  n   =    opcode & 0x000F;
-    unsigned short  x   =   (opcode & 0x0F00) >> 8;
-    unsigned short  y   =   (opcode & 0x00F0) >> 4;
-    unsigned short  kk  =    opcode & 0x00FF;
-    unsigned char&  VF  =    V[0xF];
+    unsigned short  nnn     =    opcode & 0x0FFF;
+    unsigned short  n       =    opcode & 0x000F;
+    unsigned short  x       =   (opcode & 0x0F00) >> 8;
+    unsigned short  y       =   (opcode & 0x00F0) >> 4;
+    unsigned short  kk      =    opcode & 0x00FF;
+    unsigned char&  VF      =    V[0xF];
+    unsigned char   tempVF  =    0;
 
     drawFlag = false;
 
@@ -140,18 +141,24 @@ void Chip8::emulateCycle() {
                     V[x] ^= V[y]; break;
                 case 0x0004: // 0x8XY4: V[X] ADD V[Y]
                     V[x] += V[y];
-                    VF = V[x] > 255;
+                    tempVF = V[x] > 255;
                     V[x] &= 0x00FF;
+                    VF = tempVF;
                     break;
                 case 0x0005: // 0x8XY5: V[X] SUB V[Y]
-                    VF = V[x] > V[y];
-                    V[x] = (V[x] - V[y]) & 0x00FF; break;
+                    tempVF = V[x] >= V[y];
+                    V[x] -= V[y];
+                    VF = tempVF;
+                    break;
                 case 0x0006: // 0x8XY6: V[X] = V[X] / 2 
                     VF = V[x] & 0x0001; // check if last bit is 1
-                    V[x] = V[x] >> 1; break;
+                    V[x] = V[x] >> 1;
+                    break;
                 case 0x0007: // 0x8XY7: V[X] SUBN V[Y]
-                    VF = V[y] > V[x];
-                    V[x] = (V[y] - V[x]) & 0x00FF; break;
+                    tempVF = V[y] >= V[x];
+                    V[x] = (V[y] - V[x]);
+                    VF = tempVF;
+                    break;
                 case 0x000E: // 0x8XYE: V[X] = V[X] * 2 
                     VF = V[x] & 0x8000; // set to most significant bit of
                     V[x] = V[x] << 1; break;
