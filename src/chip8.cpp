@@ -150,8 +150,8 @@ void Chip8::emulateCycle() {
                     VF = tempVF;
                     break;
                 case 0x0006: // 0x8XY6: V[X] = V[X] / 2 
-                    VF = V[x] & 1; // check if last bit is 1
-                    V[x] = V[x] >> 1;
+                    tempVF = V[x] & 1; // check if last bit is 1
+                    V[x] >>= 1;
                     break;
                 case 0x0007: // 0x8XY7: V[X] SUBN V[Y]
                     tempVF = V[y] >= V[x];
