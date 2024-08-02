@@ -6,7 +6,8 @@
 #include "display.hpp"
 #include "memory.hpp"
 
-struct Chip8 {
+class Chip8 {
+
     size_t nCycle_;
     
     bool            drawFlag_;
@@ -24,12 +25,24 @@ struct Chip8 {
     std::unique_ptr<Memory> memory_;
     std::unique_ptr<Screen> screen_;
 
+    sf::Keyboard::Key getKey(const unsigned char& x);
+    void drawSprite(
+        const unsigned short n,
+        const unsigned short x,
+        const unsigned short y,
+        unsigned char& VF);
+
+public:
+
     Chip8(); // initialize all components
+
+    void drawScreen(sf::RenderWindow& window);
     void loadFile(const std::string& filename);
     void emulateCycle();
-    void drawScreen(sf::RenderWindow& window);
-private:
-    sf::Keyboard::Key getKey(const unsigned char& x); 
+
+    Memory& getMemory();
+    Screen& getScreen();
+    bool    getDrawFlag();
 };
 
 #endif //CHIP8_HPP

@@ -36,6 +36,18 @@ Chip8::Chip8() {
     memory_->loadFontset();
 }
 
+Memory& Chip8::getMemory() {
+    return *memory_;
+}
+
+Screen& Chip8::getScreen() {
+    return *screen_;
+}
+
+bool Chip8::getDrawFlag() {
+    return drawFlag_;
+}
+
 void Chip8::drawScreen(sf::RenderWindow& window) {
     for(unsigned short i = 0; i < Screen::height; ++i) {
         for(unsigned short j = 0; j < Screen::width; ++j) {
@@ -70,6 +82,33 @@ void Chip8::loadFile(const std::string& filename) {
 void unknownOpcode(const unsigned short& opcode) {
     printf("Unknown opcode_: 0x%04x\n", opcode);
     exit(2);
+}
+
+void Chip8::drawSprite(
+    const unsigned short n,
+    const unsigned short x,
+    const unsigned short y,
+    unsigned char &VF) {
+    for(unsigned short i = 0; i < n; ++i) {
+
+        unsigned short yrow = V_[y] + i;
+        unsigned char row = (*memory_)[I_+i];
+
+        for(unsigned char j = 0; j < 8; ++j) {
+
+            unsigned short xcol = V_[x] + j;
+            bool curr_bit = (row >> (8-j-1)) & 1;
+
+            if(curr_bit) {
+                std::shared_ptr<Pixel> pixel = screen_->getPixel(xcol, yrow);
+
+                if(pixel->getState() ^ curr_bit) {
+                    pixel->setState(curr_bit);
+                    VF = 1;
+                }
+            }
+        }
+    }
 }
 
 void Chip8::emulateCycle() {
@@ -183,28 +222,7 @@ void Chip8::emulateCycle() {
             V_[x] = (rand() % 256) & kk; break;
         case 0xD000: // 0xDXYN: Disp_lay n-byte sp_rite starting at memory_ location I_ at (V_[X], V[Y]), V[F] = collision;
             VF = 0;
-
-            for(unsigned short i = 0; i < n; ++i) {
-
-                unsigned short yrow = V_[y] + i;
-                unsigned char row = (*memory_)[I_+i];
-
-                for(unsigned char j = 0; j < 8; ++j) {
-
-                    unsigned short xcol = V_[x] + j;
-                    bool curr_bit = (row >> (8-j-1)) & 1;
-
-                    if(curr_bit) {
-                        std::shared_ptr<Pixel> pixel = screen_->getPixel(xcol, yrow);
-
-                        if(pixel->getState() ^ curr_bit) {
-                            pixel->setState(curr_bit);
-                            VF = 1;
-                        }
-                    }
-                }
-            }
-
+            drawSprite(n, x, y, VF);
             drawFlag_ = true;
             break;
         case 0xE000:
@@ -242,12 +260,12 @@ void Chip8::emulateCycle() {
                     (*memory_)[I_+2] = (V_[x] % 100) % 10; // hundreds
                     break;
                 case 0x0055: // 0xFX55: Store registers V_[0x0] through V[X] in memory_ starting at location I_
-                    for(unsigned char i = 0; i <= (x); ++i)
-                        (*memory_)[I_+i] = V_[i];
+                    for(unsigned char i = 0; i <= x; ++i)
+                        (*memory_)[I_ + i] = V_[i];
                     break;
                 case 0x0065: // 0xFX65: Read registers V_[0x0] through V[X] from memory_ starting at location I_
-                    for(unsigned char i = 0; i <= (x); ++i)
-                        V_[i] = (*memory_)[I_+i];
+                    for(unsigned char i = 0; i <= x; ++i)
+                        V_[i] = (*memory_)[I_ + i];
                     break;
                 default:
                     unknownOpcode(opcode_); break;
