@@ -152,6 +152,7 @@ void Chip8::emulateCycle() {
                 case 0x0006: // 0x8XY6: V[X] = V[X] / 2 
                     tempVF = V[x] & 1; // check if last bit is 1
                     V[x] >>= 1;
+                    VF = tempVF;
                     break;
                 case 0x0007: // 0x8XY7: V[X] SUBN V[Y]
                     tempVF = V[y] >= V[x];
@@ -159,8 +160,10 @@ void Chip8::emulateCycle() {
                     VF = tempVF;
                     break;
                 case 0x000E: // 0x8XYE: V[X] = V[X] * 2 
-                    VF = V[x] & 0x8000; // set to most significant bit of
-                    V[x] = V[x] << 1; break;
+                    tempVF = V[x] >> 7; // set to most significant bit of
+                    V[x] <<= 1;
+                    VF = tempVF;
+                    break;
                 default:
                     unknownOpcode(opcode); break;
             }
