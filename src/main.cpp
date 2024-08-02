@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     myChip8 = std::make_unique<Chip8>();
     myChip8->loadFile(inputFileName);
     if (Options::verbose)
-        myChip8->memory->printProgram();
+        myChip8->memory_->printProgram();
 
     if (Options::debug) {
         while (window.isOpen()) {
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
                 else if (   event.type == sf::Event::KeyReleased
                         &&  event.key.scancode == sf::Keyboard::Scan::Enter) {
                     myChip8->emulateCycle();
-                    if(myChip8->drawFlag)
+                    if(myChip8->drawFlag_)
                         myChip8->drawScreen(window);
                 }
             }
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
                     window.close();
             }
             myChip8->emulateCycle();
-            if(myChip8->drawFlag)
+            if(myChip8->drawFlag_)
                 myChip8->drawScreen(window);
         }
     }
