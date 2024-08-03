@@ -201,7 +201,7 @@ void Chip8::emulateCycle() {
                     VF = tempVF;
                     break;
                 case 0x000E: // 0x8XYE: V_[X] = V[X] * 2 
-                    tempVF = V_[x] >> 8; // set to most significant bit of
+                    tempVF = V_[x] >> 7; // set to most significant bit of
                     V_[x] <<= 1;
                     VF = tempVF;
                     break;
@@ -245,7 +245,6 @@ void Chip8::emulateCycle() {
                     V_[x] = delay_timer_; break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V_[X]
                     pause_ = true;
-                    /*if(sf::Keyboard::isKeyPressed())*/
                 case 0x0015: // 0xFX15: delay_timer = V_[X]
                     delay_timer_ = V_[x]; break;
                 case 0x0018: // 0xFX18: sound_timer = V_[X]
