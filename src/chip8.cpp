@@ -89,6 +89,9 @@ void Chip8::drawSprite(
     const unsigned short x,
     const unsigned short y,
     unsigned char &VF) {
+
+    VF = 0;
+
     for(unsigned short i = 0; i < n; ++i) {
 
         unsigned short yrow = V_[y] + i;
@@ -113,7 +116,8 @@ void Chip8::drawSprite(
 
 void Chip8::emulateCycle() {
     opcode_ = memory_->getOpcode(pc_);
-    pc_+=2;
+    pc_ += 2;
+    drawFlag_ = false;
 
     unsigned short  nnn     =    opcode_ & 0x0FFF;
     unsigned short  n       =    opcode_ & 0x000F;
@@ -122,8 +126,6 @@ void Chip8::emulateCycle() {
     unsigned short  kk      =    opcode_ & 0x00FF;
     unsigned char&  VF      =    V_[0xF];
     unsigned char   tempVF  =    0;
-
-    drawFlag_ = false;
 
     if(Options::verbose) {
         std::cout   << "| cycle # | opcode_ | x | y | kk | nnn | n | VF | pc_ | sp_" << std::endl
@@ -148,7 +150,8 @@ void Chip8::emulateCycle() {
             }
             break;
         case 0x1000: // 0x1NNN: Jump to location NNN
-            pc_ = nnn; break;
+            pc_ = nnn;
+            break;
         case 0x2000: // 0x2NNN: Call subroutine at NNN
             stack_[sp_] = pc_; // earlier incremented by 2
             ++sp_;
@@ -164,22 +167,28 @@ void Chip8::emulateCycle() {
             break;
         case 0x5000: // 0x5XY0: Skip next instr. if V_[X] == V[Y]
             if(V_[x] == V_[y])
-                 pc_+=2;
+                pc_+=2;
             break;
         case 0x6000: // 0x6XKK: V_[X] = KK 
-            V_[x] = kk; break;
+            V_[x] = kk;
+            break;
         case 0x7000: // 0x7XKK: V_[X] += KK
-            V_[x] += kk; break;
+            V_[x] += kk;
+            break;
         case 0x8000:
             switch(n) {
                 case 0x0000: // 0x8XY0: V_[X] = V[Y]
-                    V_[x] = V_[y]; break;
+                    V_[x] = V_[y];
+                    break;
                 case 0x0001: // 0x8XY1: V_[X] OR V[Y]
-                    V_[x] |= V_[y]; break;
+                    V_[x] |= V_[y];
+                    break;
                 case 0x0002: // 0x8XY2: V_[X] AND V[Y]
-                    V_[x] &= V_[y]; break;
+                    V_[x] &= V_[y];
+                    break;
                 case 0x0003: // 0x8XY3: V_[X] XOR V[Y]
-                    V_[x] ^= V_[y]; break;
+                    V_[x] ^= V_[y];
+                    break;
                 case 0x0004: // 0x8XY4: V_[X] ADD V[Y]
                     tempVF = (V_[x] + V_[y]) > 255;
                     V_[x] = (V_[x] + V_[y]) & 0x00FF;
@@ -214,45 +223,54 @@ void Chip8::emulateCycle() {
                  pc_+=2;
             break;
         case 0xA000: // 0xANNN: I_ = NNN
-            I_ = nnn; break;
+            I_ = nnn;
+            break;
         case 0xB000: // 0xBNNN: pc_ = NNN + V_[0]
-            pc_ = nnn + V_[0]; break;
+            pc_ = nnn + V_[0];
+            break;
         case 0xC000: // 0xCXKK: V_[X] = random byte AND KK
             // TODO: Replace rand() with something else
-            V_[x] = (rand() % 256) & kk; break;
+            V_[x] = (rand() % 256) & kk;
+            break;
         case 0xD000: // 0xDXYN: Disp_lay n-byte sp_rite starting at memory_ location I_ at (V_[X], V[Y]), V[F] = collision;
-            VF = 0;
             drawSprite(n, x, y, VF);
             drawFlag_ = true;
             break;
         case 0xE000:
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V_[X] is pressed
-                    if(sf::Keyboard::isKeyPressed(getKey(x)) == true)
+                    if(sf::Keyboard::isKeyPressed(getKey(x)))
                         pc_+=2;
                     break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V_[X] is NOT pressed
-                    if(sf::Keyboard::isKeyPressed(getKey(x)) == false)
+                    if(!sf::Keyboard::isKeyPressed(getKey(x)))
                         pc_+=2;
                     break;
                 default:
-                    unknownOpcode(opcode_); break;
+                    unknownOpcode(opcode_);
+                    break;
             }
             break;
         case 0xF000:
             switch(opcode_ & 0x00FF){
                 case 0x0007: // 0xFX07: V_[X] = delay_timer
-                    V_[x] = delay_timer_; break;
+                    V_[x] = delay_timer_;
+                    break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V_[X]
                     pause_ = true;
+                    break;
                 case 0x0015: // 0xFX15: delay_timer = V_[X]
-                    delay_timer_ = V_[x]; break;
+                    delay_timer_ = V_[x];
+                    break;
                 case 0x0018: // 0xFX18: sound_timer = V_[X]
-                    sound_timer_ = V_[x]; break;
+                    sound_timer_ = V_[x];
+                    break;
                 case 0x001E: // 0xFX1E: I_ = I_ + V_[X]
-                    I_ = I_ + V_[x]; break;
+                    I_ = I_ + V_[x];
+                    break;
                 case 0x0029: // 0xFX29: I_ = location_of_sp_rite_for_digit_V_[X]
-                    I_ = 4 * V_[x]; break;
+                    I_ = 4 * V_[x];
+                    break;
                 case 0x0033: // 0xFX33: Store BCD representation of V_[X] in memory_ locations I_, I_+1 and I_+2
                     (*memory_)[I_] = V_[x] / 100; // ones
                     (*memory_)[I_+1] = (V_[x] / 10) % 10; // tens
@@ -267,7 +285,8 @@ void Chip8::emulateCycle() {
                         V_[i] = (*memory_)[I_ + i];
                     break;
                 default:
-                    unknownOpcode(opcode_); break;
+                    unknownOpcode(opcode_);
+                    break;
             }
             break;
         default:
