@@ -37,15 +37,16 @@ POC for my Bachelor's Degree Thesis.
 - [x] ```0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2```
 - [x] ```0xFX55: Store registers V[0x0] through V[X] in memory starting at location I```
 - [x] ```0xFX65: Read registers V[0x0] through V[X] from memory starting at location I```
+
 ## Roms
 ### Tests
 - [x] CHIP-8 splash screen
 - [x] IBM logo
 - [x] Corax+ opcode test
 - [x] Flags test
-- [ ] Beep test
+- [x] Quirks test (display refresh rate should be faster)
 - [ ] Keypad test
-- [ ] Quirks test
+- [ ] Beep test
 
 ### Games
 T.B.A.
