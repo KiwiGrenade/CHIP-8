@@ -3,7 +3,7 @@ CHIP-8 emulator in C++.
 POC for my Bachelor's Degree Thesis.
 
 ## Opcodes
-- [ ] ```0x00E0: Clear screen```
+- [x] ```0x00E0: Clear screen```
 - [x] ```0x00EE: Return from subroutine```
 - [x] ```0x1NNN: Jump to location```
 - [x] ```0x2NNN: Call a subroutine at address NNN```
@@ -25,9 +25,9 @@ POC for my Bachelor's Degree Thesis.
 - [ ] ```0xANNN: I = NNN```
 - [ ] ```0xBNNN: pc = NNN + V[0x0]```
 - [ ] ```0xCXKK: V[X] = random byte AND KK```
-- [ ] ```0xDXYN: Display n-byte sprite starting at memory location I (V[X, V[Y]), V[F] = collision```
-- [ ] ```0xEX9E: Skip next instr. if key with value of V[X] is pressed```
-- [ ] ```0xEXA1: Skip next instr. if key with value of V[X] is NOT pressed```
+- [x] ```0xDXYN: Display n-byte sprite starting at memory location I (V[X, V[Y]), V[F] = collision```
+- [x] ```0xEX9E: Skip next instr. if key with value of V[X] is pressed```
+- [x] ```0xEXA1: Skip next instr. if key with value of V[X] is NOT pressed```
 - [ ] ```0xFX07: V[X] = delay_timer```
 - [x] ```0xFX0A: Wait for key press, store value of pressed key in V[X]```
 - [ ] ```0xFX15: delay_timer = V[X]```
@@ -45,7 +45,7 @@ POC for my Bachelor's Degree Thesis.
 - [x] Corax+ opcode test
 - [x] Flags test
 - [x] Quirks test (display refresh rate should be slower)
-- [ ] Keypad test
+- [x] Keypad test
 - [ ] Beep test
 
 ### Games
