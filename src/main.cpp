@@ -1,4 +1,3 @@
-#include <iostream>
 #include <memory>
 #include <string>
 #include <SFML/Graphics.hpp>
@@ -75,6 +74,7 @@ int main(int argc, char *argv[])
                 myChip8->drawScreen(window);
         }
     }
+    // TODO: Slow down the cycle speed.
 
     return 0;
 }
