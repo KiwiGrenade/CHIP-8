@@ -76,27 +76,28 @@ void Chip8::drawSprite(
     const unsigned short x,
     const unsigned short y,
     unsigned char &VF) {
-
     VF = 0;
 
     for(unsigned short i = 0; i < n; ++i) {
 
-        unsigned short yrow = V_[y] + i;
+        unsigned short yrow = (V_[y] % Screen::height) + i;
         unsigned char row = (*memory_)[I_+i];
+
+        if(yrow >= Screen::height)
+            continue;
 
         for(unsigned char j = 0; j < 8; ++j) {
 
-            unsigned short xcol = V_[x] + j;
+            unsigned short xcol = (V_[x] % Screen::width) + j;
             bool curr_bit = (row >> (8-j-1)) & 1;
 
-            if(curr_bit) {
-                std::shared_ptr<Pixel> pixel = screen_->getPixel(xcol, yrow);
+            if(xcol >= Screen::width)
+                continue;
 
-                if(pixel->getState() ^ curr_bit) {
-                    pixel->setState(curr_bit);
-                    VF = 1;
-                }
-            }
+            std::shared_ptr<Pixel> pixel = screen_->getPixel(xcol, yrow);
+            if(pixel->getState() == true && curr_bit)
+                VF = 1;
+            pixel->setState(pixel->getState() ^ curr_bit);
         }
     }
 }
@@ -168,13 +169,19 @@ void Chip8::emulateCycle(const sf::Event& event) {
                     V_[x] = V_[y];
                     break;
                 case 0x0001: // 0x8XY1: V_[X] OR V[Y]
+                    tempVF = 0;
                     V_[x] |= V_[y];
+                    VF = tempVF;
                     break;
                 case 0x0002: // 0x8XY2: V_[X] AND V[Y]
+                    tempVF = 0;
                     V_[x] &= V_[y];
+                    VF = tempVF;
                     break;
                 case 0x0003: // 0x8XY3: V_[X] XOR V[Y]
+                    tempVF = 0;
                     V_[x] ^= V_[y];
+                    VF = tempVF;
                     break;
                 case 0x0004: // 0x8XY4: V_[X] ADD V[Y]
                     tempVF = (V_[x] + V_[y]) > 255;
@@ -188,6 +195,7 @@ void Chip8::emulateCycle(const sf::Event& event) {
                     break;
                 case 0x0006: // 0x8XY6: V_[X] = V[X] / 2 
                     tempVF = V_[x] & 1; // check if last bit is 1
+                    V_[x] = V_[y];
                     V_[x] >>= 1;
                     VF = tempVF;
                     break;
@@ -198,6 +206,7 @@ void Chip8::emulateCycle(const sf::Event& event) {
                     break;
                 case 0x000E: // 0x8XYE: V_[X] = V[X] * 2 
                     tempVF = V_[x] >> 7; // set to most significant bit of
+                    V_[x] = V_[y];
                     V_[x] <<= 1;
                     VF = tempVF;
                     break;
@@ -271,12 +280,12 @@ void Chip8::emulateCycle(const sf::Event& event) {
                     (*memory_)[I_+2] = (V_[x] % 100) % 10; // hundreds
                     break;
                 case 0x0055: // 0xFX55: Store registers V_[0x0] through V[X] in memory_ starting at location I_
-                    for(unsigned char i = 0; i <= x; ++i)
-                        (*memory_)[I_ + i] = V_[i];
+                    for(unsigned char i = 0; i <= x; ++i, ++I_)
+                        (*memory_)[I_] = V_[i];
                     break;
                 case 0x0065: // 0xFX65: Read registers V_[0x0] through V[X] from memory_ starting at location I_
-                    for(unsigned char i = 0; i <= x; ++i)
-                        V_[i] = (*memory_)[I_ + i];
+                    for(unsigned char i = 0; i <= x; ++i, ++I_)
+                        V_[i] = (*memory_)[I_];
                     break;
                 default:
                     unknownOpcode(opcode_);
