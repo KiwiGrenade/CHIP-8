@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
                     window.close();
                 else if (   event.type == sf::Event::KeyReleased
                         &&  event.key.scancode == sf::Keyboard::Scan::Enter) {
-                    myChip8->emulateCycle();
+                    myChip8->emulateCycle(event);
                     if(myChip8->getDrawFlag())
                         myChip8->drawScreen(window);
                 }
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
                 if(event.type == sf::Event::Closed)
                     window.close();
             }
-            myChip8->emulateCycle();
+            myChip8->emulateCycle(event);
             if(myChip8->getDrawFlag())
                 myChip8->drawScreen(window);
         }

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include "SFML/Window/Keyboard.hpp"
 #include "display.hpp"
 #include "memory.hpp"
 
@@ -20,12 +21,13 @@ class Chip8 {
     unsigned char   delay_timer_;
     unsigned short  stack_[16];
     unsigned char   key_[16];
-    static bool     pause_;
+    bool            waitingForKeyboardInput_;
 
     std::unique_ptr<Memory> memory_;
     std::unique_ptr<Screen> screen_;
 
-    sf::Keyboard::Key getKey(const unsigned char& x);
+    const sf::Keyboard::Key charToKey(const unsigned char& x);
+    const unsigned char getKeyToChar(const sf::Keyboard::Scancode& key);
     void drawSprite(
         const unsigned short n,
         const unsigned short x,
@@ -38,11 +40,24 @@ public:
 
     void drawScreen(sf::RenderWindow& window);
     void loadFile(const std::string& filename);
-    void emulateCycle();
+    void emulateCycle(const sf::Event& event);
 
-    Memory& getMemory();
-    Screen& getScreen();
-    bool    getDrawFlag();
+    inline Memory& getMemory() {
+        return *memory_;
+    }
+
+    inline Screen& getScreen() {
+        return *screen_;
+    }
+
+    inline bool getDrawFlag() {
+        return drawFlag_;
+    }
+
+    inline bool isWaitingForKeyboardInput() {
+        return waitingForKeyboardInput_;
+    }
+
 };
 
 #endif //CHIP8_HPP

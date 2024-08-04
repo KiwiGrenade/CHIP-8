@@ -12,11 +12,10 @@
 #include "chip8.hpp"
 #include "utils.hpp"
 
-bool Chip8::pause_;
-
 Chip8::Chip8() {
     std::srand(time(nullptr));
 
+    waitingForKeyboardInput_ = false;
     nCycle_ = 0;
     pc_ = Memory::programBegin;
     sound_timer_ = 0;
@@ -34,18 +33,6 @@ Chip8::Chip8() {
     std::fill(std::begin(V_), std::end(V_), 0);
     memory_->clear();
     memory_->loadFontset();
-}
-
-Memory& Chip8::getMemory() {
-    return *memory_;
-}
-
-Screen& Chip8::getScreen() {
-    return *screen_;
-}
-
-bool Chip8::getDrawFlag() {
-    return drawFlag_;
 }
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
@@ -114,7 +101,7 @@ void Chip8::drawSprite(
     }
 }
 
-void Chip8::emulateCycle() {
+void Chip8::emulateCycle(const sf::Event& event) {
     opcode_ = memory_->getOpcode(pc_);
     pc_ += 2;
     drawFlag_ = false;
@@ -159,15 +146,15 @@ void Chip8::emulateCycle() {
             break;
         case 0x3000: // 0x3XKK: Skip next instr. if V_[X] == KK
             if(V_[x] == kk)
-                pc_+=2;
+                pc_ += 2;
             break;
         case 0x4000: // 0x4XKK: Skip next instr. if V_[X] != KK
             if(V_[x] != kk)
-                pc_+=2;
+                pc_ += 2;
             break;
         case 0x5000: // 0x5XY0: Skip next instr. if V_[X] == V[Y]
             if(V_[x] == V_[y])
-                pc_+=2;
+                pc_ += 2;
             break;
         case 0x6000: // 0x6XKK: V_[X] = KK 
             V_[x] = kk;
@@ -220,7 +207,7 @@ void Chip8::emulateCycle() {
             break;
         case 0x9000: // 0x9XY0: Skip next instr. if V_[X] != V[Y]
             if(V_[x] != V_[y])
-                 pc_+=2;
+                 pc_ += 2;
             break;
         case 0xA000: // 0xANNN: I_ = NNN
             I_ = nnn;
@@ -239,12 +226,12 @@ void Chip8::emulateCycle() {
         case 0xE000:
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V_[X] is pressed
-                    if(sf::Keyboard::isKeyPressed(getKey(x)))
-                        pc_+=2;
+                    if(sf::Keyboard::isKeyPressed(charToKey(x)))
+                        pc_ += 2;
                     break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V_[X] is NOT pressed
-                    if(!sf::Keyboard::isKeyPressed(getKey(x)))
-                        pc_+=2;
+                    if(!sf::Keyboard::isKeyPressed(charToKey(x)))
+                        pc_ += 2;
                     break;
                 default:
                     unknownOpcode(opcode_);
@@ -257,7 +244,14 @@ void Chip8::emulateCycle() {
                     V_[x] = delay_timer_;
                     break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V_[X]
-                    pause_ = true;
+                    if(event.type == sf::Event::KeyReleased) {
+                        V_[x] = getKeyToChar(event.key.scancode);
+                        waitingForKeyboardInput_ = false;
+                    }
+                    else {
+                        pc_ -= 2;
+                        waitingForKeyboardInput_ = true;
+                    }
                     break;
                 case 0x0015: // 0xFX15: delay_timer = V_[X]
                     delay_timer_ = V_[x];
@@ -305,42 +299,81 @@ void Chip8::emulateCycle() {
     nCycle_++;
 }
 
-sf::Keyboard::Key Chip8::getKey(const unsigned char& x) {
-    sf::Keyboard::Key key;
+using namespace sf;
+
+const unsigned char Chip8::getKeyToChar(const sf::Keyboard::Scancode& key) {
+    switch (key) {
+        case Keyboard::Scan::Num1:
+            return 0x1;
+        case Keyboard::Scan::Num2:
+            return 0x2;
+        case Keyboard::Scan::Num3:
+            return 0x3;
+        case Keyboard::Scan::Q:
+            return 0x4;
+        case Keyboard::Scan::W:
+            return 0x5;
+        case Keyboard::Scan::E:
+            return 0x6;
+        case Keyboard::Scan::A:
+            return 0x7;
+        case Keyboard::Scan::S:
+            return 0x8;
+        case Keyboard::Scan::D:
+            return 0x9;
+        case Keyboard::Scan::Z:
+            return 0xA;
+        case Keyboard::Scan::C:
+            return 0xB;
+        case Keyboard::Scan::Num4:
+            return 0xC;
+        case Keyboard::Scan::R:
+            return 0xD;
+        case Keyboard::Scan::F:
+            return 0xE;
+        case Keyboard::Scan::V:
+            return 0xF;
+        default:
+            return 0x0;
+    }
+}
+
+const sf::Keyboard::Key Chip8::charToKey(const unsigned char& x) {
     switch(V_[x]) {
         case 0x1:
-            key = sf::Keyboard::Num1; break;
+            return Keyboard::Num1;
         case 0x2:
-            key = sf::Keyboard::Num2; break;
+            return Keyboard::Num2;
         case 0x3:
-            key = sf::Keyboard::Num3; break;
+            return Keyboard::Num3;
         case 0x4:
-            key = sf::Keyboard::Q; break;
+            return Keyboard::Q;
         case 0x5:
-            key = sf::Keyboard::W; break;
+            return Keyboard::W;
         case 0x6:
-            key = sf::Keyboard::E; break;
+            return Keyboard::E;
         case 0x7:
-            key = sf::Keyboard::A; break;
+            return Keyboard::A;
         case 0x8:
-            key = sf::Keyboard::S; break;
+            return Keyboard::S;
         case 0x9:
-            key = sf::Keyboard::D; break;
+            return Keyboard::D;
         case 0xA:
-            key = sf::Keyboard::Z; break;
+            return Keyboard::Z;
         case 0xB:
-            key = sf::Keyboard::C; break;
+            return Keyboard::C;
         case 0xC:
-            key = sf::Keyboard::Num4; break;
+            return Keyboard::Num4;
         case 0xD:
-            key = sf::Keyboard::R; break;
+            return Keyboard::R;
         case 0xE:
-            key = sf::Keyboard::F; break;
+            return Keyboard::F;
         case 0xF:
-            key = sf::Keyboard::V; break;
+            return Keyboard::V;
         case 0x0:
-            key = sf::Keyboard::X; break;
+            return Keyboard::X;
+        default:
+            return Keyboard::Unknown;
     };
-    return key;
 }
 

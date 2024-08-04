@@ -29,7 +29,7 @@ POC for my Bachelor's Degree Thesis.
 - [ ] ```0xEX9E: Skip next instr. if key with value of V[X] is pressed```
 - [ ] ```0xEXA1: Skip next instr. if key with value of V[X] is NOT pressed```
 - [ ] ```0xFX07: V[X] = delay_timer```
-- [ ] ```0xFX0A: Wait for key press, store value of pressed key in V[X]```
+- [x] ```0xFX0A: Wait for key press, store value of pressed key in V[X]```
 - [ ] ```0xFX15: delay_timer = V[X]```
 - [ ] ```0xFX18: sound_timer = V[X]```
 - [x] ```0xFX1E: I = I + V[X]```
