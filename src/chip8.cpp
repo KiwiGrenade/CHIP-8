@@ -14,7 +14,7 @@
 Chip8::Chip8() {
     std::srand(time(nullptr));
 
-    waitingForKeyboardInput_ = false;
+    isWaitingForKeyboardInput_ = false;
     nCycle_ = 0;
     pc_ = Memory::programBegin;
     sound_timer_ = 0;
@@ -101,6 +101,96 @@ void Chip8::drawSprite(
     }
 }
 
+using namespace sf;
+
+const unsigned char Chip8::getKeyToChar(const sf::Keyboard::Scancode& key) {
+    switch (key) {
+        case Keyboard::Scan::Num1:
+            return 0x1;
+        case Keyboard::Scan::Num2:
+            return 0x2;
+        case Keyboard::Scan::Num3:
+            return 0x3;
+        case Keyboard::Scan::Q:
+            return 0x4;
+        case Keyboard::Scan::W:
+            return 0x5;
+        case Keyboard::Scan::E:
+            return 0x6;
+        case Keyboard::Scan::A:
+            return 0x7;
+        case Keyboard::Scan::S:
+            return 0x8;
+        case Keyboard::Scan::D:
+            return 0x9;
+        case Keyboard::Scan::Z:
+            return 0xA;
+        case Keyboard::Scan::C:
+            return 0xB;
+        case Keyboard::Scan::Num4:
+            return 0xC;
+        case Keyboard::Scan::R:
+            return 0xD;
+        case Keyboard::Scan::F:
+            return 0xE;
+        case Keyboard::Scan::V:
+            return 0xF;
+        default:
+            return 0x0;
+    }
+}
+
+const sf::Keyboard::Key Chip8::charToKey(const unsigned char& x) {
+    switch(V_[x]) {
+        case 0x1:
+            return Keyboard::Num1;
+        case 0x2:
+            return Keyboard::Num2;
+        case 0x3:
+            return Keyboard::Num3;
+        case 0x4:
+            return Keyboard::Q;
+        case 0x5:
+            return Keyboard::W;
+        case 0x6:
+            return Keyboard::E;
+        case 0x7:
+            return Keyboard::A;
+        case 0x8:
+            return Keyboard::S;
+        case 0x9:
+            return Keyboard::D;
+        case 0xA:
+            return Keyboard::Z;
+        case 0xB:
+            return Keyboard::C;
+        case 0xC:
+            return Keyboard::Num4;
+        case 0xD:
+            return Keyboard::R;
+        case 0xE:
+            return Keyboard::F;
+        case 0xF:
+            return Keyboard::V;
+        case 0x0:
+            return Keyboard::X;
+        default:
+            return Keyboard::Unknown;
+    };
+}
+
+void Chip8::printData(
+    const unsigned short& x,
+    const unsigned short& y,
+    const unsigned short& n,
+    const unsigned short& kk,
+    const unsigned short& VF,
+    const unsigned short& nnn) {
+    std::cout   << "| cycle # | opcode_ | x | y | kk | nnn | n | VF | pc_ | sp_" << std::endl << std::dec
+                << "| " << nCycle_ << " | " << std::hex << opcode_ << " | " << x << " | " << y 
+                << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc_-2 << " | " << sp_ << std::endl;
+}
+
 void Chip8::emulateCycle(const sf::Event& event) {
     opcode_ = memory_->getOpcode(pc_);
     pc_ += 2;
@@ -115,9 +205,7 @@ void Chip8::emulateCycle(const sf::Event& event) {
     unsigned char   tempVF  =    0;
 
     if(Options::verbose) {
-        std::cout   << "| cycle # | opcode_ | x | y | kk | nnn | n | VF | pc_ | sp_" << std::endl
-            << " | " << std::dec << nCycle_ << " | " << std::hex << opcode_ << " | " << x << " | " << y 
-            << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc_-2 << " | " << sp_ << std::endl;
+        printData(x, y, n, kk, VF, nnn);
     }
     
     switch(opcode_ & 0xF000) { // check first 4 bits
@@ -254,11 +342,11 @@ void Chip8::emulateCycle(const sf::Event& event) {
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V_[X]
                     if(event.type == sf::Event::KeyReleased) {
                         V_[x] = getKeyToChar(event.key.scancode);
-                        waitingForKeyboardInput_ = false;
+                        isWaitingForKeyboardInput_ = false;
                     }
                     else {
                         pc_ -= 2;
-                        waitingForKeyboardInput_ = true;
+                        isWaitingForKeyboardInput_ = true;
                     }
                     break;
                 case 0x0015: // 0xFX15: delay_timer = V_[X]
@@ -305,83 +393,5 @@ void Chip8::emulateCycle(const sf::Event& event) {
         --sound_timer_;
     }
     nCycle_++;
-}
-
-using namespace sf;
-
-const unsigned char Chip8::getKeyToChar(const sf::Keyboard::Scancode& key) {
-    switch (key) {
-        case Keyboard::Scan::Num1:
-            return 0x1;
-        case Keyboard::Scan::Num2:
-            return 0x2;
-        case Keyboard::Scan::Num3:
-            return 0x3;
-        case Keyboard::Scan::Q:
-            return 0x4;
-        case Keyboard::Scan::W:
-            return 0x5;
-        case Keyboard::Scan::E:
-            return 0x6;
-        case Keyboard::Scan::A:
-            return 0x7;
-        case Keyboard::Scan::S:
-            return 0x8;
-        case Keyboard::Scan::D:
-            return 0x9;
-        case Keyboard::Scan::Z:
-            return 0xA;
-        case Keyboard::Scan::C:
-            return 0xB;
-        case Keyboard::Scan::Num4:
-            return 0xC;
-        case Keyboard::Scan::R:
-            return 0xD;
-        case Keyboard::Scan::F:
-            return 0xE;
-        case Keyboard::Scan::V:
-            return 0xF;
-        default:
-            return 0x0;
-    }
-}
-
-const sf::Keyboard::Key Chip8::charToKey(const unsigned char& x) {
-    switch(V_[x]) {
-        case 0x1:
-            return Keyboard::Num1;
-        case 0x2:
-            return Keyboard::Num2;
-        case 0x3:
-            return Keyboard::Num3;
-        case 0x4:
-            return Keyboard::Q;
-        case 0x5:
-            return Keyboard::W;
-        case 0x6:
-            return Keyboard::E;
-        case 0x7:
-            return Keyboard::A;
-        case 0x8:
-            return Keyboard::S;
-        case 0x9:
-            return Keyboard::D;
-        case 0xA:
-            return Keyboard::Z;
-        case 0xB:
-            return Keyboard::C;
-        case 0xC:
-            return Keyboard::Num4;
-        case 0xD:
-            return Keyboard::R;
-        case 0xE:
-            return Keyboard::F;
-        case 0xF:
-            return Keyboard::V;
-        case 0x0:
-            return Keyboard::X;
-        default:
-            return Keyboard::Unknown;
-    };
 }
 

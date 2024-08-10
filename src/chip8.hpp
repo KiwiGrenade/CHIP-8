@@ -8,6 +8,19 @@
 #include "memory.hpp"
 
 class Chip8 {
+public:
+
+    Chip8(); // initialize all components
+    void drawScreen(sf::RenderWindow& window);
+    void loadFile(const std::string& filename);
+    void emulateCycle(const sf::Event& event);
+
+    inline Memory& getMemory() { return *memory_; }
+    inline Screen& getScreen() { return *screen_; }
+    inline bool getDrawFlag() { return drawFlag_; }
+    inline bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput_; }
+    
+private:
 
     size_t nCycle_;
     
@@ -21,7 +34,7 @@ class Chip8 {
     unsigned char   delay_timer_;
     unsigned short  stack_[16];
     unsigned char   key_[16];
-    bool            waitingForKeyboardInput_;
+    bool            isWaitingForKeyboardInput_;
 
     std::unique_ptr<Memory> memory_;
     std::unique_ptr<Screen> screen_;
@@ -33,31 +46,13 @@ class Chip8 {
         const unsigned short x,
         const unsigned short y,
         unsigned char& VF);
-
-public:
-
-    Chip8(); // initialize all components
-
-    void drawScreen(sf::RenderWindow& window);
-    void loadFile(const std::string& filename);
-    void emulateCycle(const sf::Event& event);
-
-    inline Memory& getMemory() {
-        return *memory_;
-    }
-
-    inline Screen& getScreen() {
-        return *screen_;
-    }
-
-    inline bool getDrawFlag() {
-        return drawFlag_;
-    }
-
-    inline bool isWaitingForKeyboardInput() {
-        return waitingForKeyboardInput_;
-    }
-
+    void printData( 
+        const unsigned short& x,
+        const unsigned short& y,
+        const unsigned short& n,
+        const unsigned short& kk,
+        const unsigned short& VF,
+        const unsigned short& nnn);
 };
 
 #endif //CHIP8_HPP
