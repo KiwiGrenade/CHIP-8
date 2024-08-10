@@ -35,6 +35,8 @@ Chip8::Chip8() {
 }
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
+    if(!drawFlag_)
+        return;
     for(unsigned short i = 0; i < Screen::height; ++i) {
         for(unsigned short j = 0; j < Screen::width; ++j) {
             std::shared_ptr<Pixel> pixel = screen_->getPixel(j, i);
