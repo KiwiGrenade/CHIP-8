@@ -32,6 +32,7 @@ Chip8::Chip8() {
     std::fill(std::begin(V_), std::end(V_), 0);
     memory_->clear();
     memory_->loadFontset();
+    std::cout << std::endl;
 }
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
@@ -391,8 +392,9 @@ void Chip8::emulateCycle(const sf::Event& event) {
             break; 
     }
 
-    if(sound_timer_ == 1)
-        std::cout << '\007';
+    if(sound_timer_ == 1) {
+        std::cout << "BEEP!\a" << std::endl;
+    }
     nCycle_++;
 }
 
