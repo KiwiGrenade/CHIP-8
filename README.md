@@ -10,7 +10,7 @@ POC for my Bachelor's Degree Thesis.
 - [x] ```0x3XKK: Skip next instr. if V[X] == KK```
 - [x] ```0x4XKK: Skip next instr. if V[X] != KK```
 - [x] ```0x5XY0: Skip next instr. if V[X] == V[Y]```
-- [ ] ```0x6XKK: V[X] = KK```
+- [x] ```0x6XKK: V[X] = KK```
 - [x] ```0x7XKK: V[X] += KK```
 - [x] ```0x8XY0: V[X] = V[Y]```
 - [x] ```0x8XY1: V[X] OR V[Y]```
@@ -22,18 +22,18 @@ POC for my Bachelor's Degree Thesis.
 - [x] ```0x8XY7: V[X] SUBN V[X]```
 - [x] ```0x8XYE: V[X] = V[X] * 2```
 - [x] ```0x9XY0: Skip next instr. if V[X] != V[Y]```
-- [ ] ```0xANNN: I = NNN```
-- [ ] ```0xBNNN: pc = NNN + V[0x0]```
-- [ ] ```0xCXKK: V[X] = random byte AND KK```
+- [x] ```0xANNN: I = NNN```
+- [x] ```0xBNNN: pc = NNN + V[0x0]```
+- [x] ```0xCXKK: V[X] = random byte AND KK```
 - [x] ```0xDXYN: Display n-byte sprite starting at memory location I (V[X, V[Y]), V[F] = collision```
 - [x] ```0xEX9E: Skip next instr. if key with value of V[X] is pressed```
 - [x] ```0xEXA1: Skip next instr. if key with value of V[X] is NOT pressed```
-- [ ] ```0xFX07: V[X] = delay_timer```
+- [x] ```0xFX07: V[X] = delay_timer```
 - [x] ```0xFX0A: Wait for key press, store value of pressed key in V[X]```
-- [ ] ```0xFX15: delay_timer = V[X]```
-- [ ] ```0xFX18: sound_timer = V[X]```
+- [x] ```0xFX15: delay_timer = V[X]```
+- [x] ```0xFX18: sound_timer = V[X]```
 - [x] ```0xFX1E: I = I + V[X]```
-- [ ] ```0xFX29: I + location_of_sprite_for_digit_V[X]```
+- [x] ```0xFX29: I + location_of_sprite_for_digit_V[X]```
 - [x] ```0xFX33: Store BCD representation of V[X] in memory locations I, I+1 and I+2```
 - [x] ```0xFX55: Store registers V[0x0] through V[X] in memory starting at location I```
 - [x] ```0xFX65: Read registers V[0x0] through V[X] from memory starting at location I```
@@ -46,7 +46,7 @@ POC for my Bachelor's Degree Thesis.
 - [x] Flags test
 - [x] Quirks test
 - [x] Keypad test
-- [ ] Beep test
+- [x] Beep test
 
 ### Games
 T.B.A.
@@ -63,3 +63,6 @@ T.B.A.
 - [CHIP-8 Wikipedia Page](https://en.wikipedia.org/wiki/CHIP-8#Virtual_machine_description)
 - [CHIP-8 Emulator Guide in C++](https://multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter)
 - [CHIP-8 Emulator Guide](https://chip-8.github.io/links/#emulatorinterpreter-development)
+- [CHIP-8 Instruction Scheduling and Frequency](https://jackson-s.me/2019/07/13/Chip-8-Instruction-Scheduling-and-Frequency.html)
+
+## [Notes](notes.md)
