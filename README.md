@@ -44,7 +44,7 @@ POC for my Bachelor's Degree Thesis.
 - [x] IBM logo
 - [x] Corax+ opcode test
 - [x] Flags test
-- [x] Quirks test (display refresh rate should be slower)
+- [x] Quirks test
 - [x] Keypad test
 - [ ] Beep test
 
