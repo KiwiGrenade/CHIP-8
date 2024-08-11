@@ -35,8 +35,6 @@ Chip8::Chip8() {
 }
 
 void Chip8::drawScreen(sf::RenderWindow& window) {
-    if(!drawFlag_)
-        return;
     for(unsigned short i = 0; i < Screen::height; ++i) {
         for(unsigned short j = 0; j < Screen::width; ++j) {
             std::shared_ptr<Pixel> pixel = screen_->getPixel(j, i);
@@ -70,6 +68,13 @@ void Chip8::loadFile(const std::string& filename) {
 void unknownOpcode(const unsigned short& opcode) {
     printf("Unknown opcode_: 0x%04x\n", opcode);
     exit(2);
+}
+
+void Chip8::updateTimers() {
+    if(delay_timer_ > 0)
+        delay_timer_--;
+    if(sound_timer_ > 0)
+        sound_timer_--;
 }
 
 void Chip8::drawSprite(
@@ -193,6 +198,12 @@ void Chip8::printData(
                 << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc_-2 << " | " << sp_ << std::endl;
 }
 
+void Chip8::loadKeyToV(const sf::Event& event) {
+    isWaitingForKeyboardInput_ = false;
+    V_[lastX_] = getKeyToChar(event.key.scancode);
+    pc_ += 2;
+}
+
 void Chip8::emulateCycle(const sf::Event& event) {
     opcode_ = memory_->getOpcode(pc_);
     pc_ += 2;
@@ -205,10 +216,10 @@ void Chip8::emulateCycle(const sf::Event& event) {
     unsigned short  kk      =    opcode_ & 0x00FF;
     unsigned char&  VF      =    V_[0xF];
     unsigned char   tempVF  =    0;
+    lastX_ = x;
 
-    if(Options::verbose) {
+    if(Options::verbose)
         printData(x, y, n, kk, VF, nnn);
-    }
     
     switch(opcode_ & 0xF000) { // check first 4 bits
         case 0x0000:
@@ -342,14 +353,8 @@ void Chip8::emulateCycle(const sf::Event& event) {
                     V_[x] = delay_timer_;
                     break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V_[X]
-                    if(event.type == sf::Event::KeyReleased) {
-                        V_[x] = getKeyToChar(event.key.scancode);
-                        isWaitingForKeyboardInput_ = false;
-                    }
-                    else {
-                        pc_ -= 2;
-                        isWaitingForKeyboardInput_ = true;
-                    }
+                    pc_ -= 2;
+                    isWaitingForKeyboardInput_ = true;
                     break;
                 case 0x0015: // 0xFX15: delay_timer = V_[X]
                     delay_timer_ = V_[x];
@@ -386,14 +391,8 @@ void Chip8::emulateCycle(const sf::Event& event) {
             break; 
     }
 
-    if(delay_timer_ > 0)
-        --delay_timer_;
-
-    if(sound_timer_ > 0) {
-        if(sound_timer_ == 1)
-            std::cout << "BEEP!\n";
-        --sound_timer_;
-    }
+    if(sound_timer_ == 1)
+        std::cout << '\007';
     nCycle_++;
 }
 

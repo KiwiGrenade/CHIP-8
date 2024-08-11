@@ -14,17 +14,22 @@ public:
     void drawScreen(sf::RenderWindow& window);
     void loadFile(const std::string& filename);
     void emulateCycle(const sf::Event& event);
+    void loadKeyToV(const sf::Event& event);
+    void updateTimers();
 
     inline Memory& getMemory() { return *memory_; }
     inline Screen& getScreen() { return *screen_; }
     inline bool getDrawFlag() { return drawFlag_; }
     inline bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput_; }
-    
+    inline unsigned char getDelayTimer() { return delay_timer_; }
+    inline unsigned char getSoundTimer() { return sound_timer_; }
+            
 private:
 
     size_t nCycle_;
     
     bool            drawFlag_;
+    unsigned short  lastX_;
     unsigned short  pc_;      // program counter
     unsigned short  opcode_;  // current opcode (opcodes are 2 bytes)
     unsigned short  I_;       // memory pointer

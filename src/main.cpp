@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
                 else if (   event.type == sf::Event::KeyReleased
                         &&  event.key.scancode == sf::Keyboard::Scan::Enter) {
                     myChip8->emulateCycle(event);
-                    myChip8->drawScreen(window);
+                    if(myChip8->getDrawFlag())
+                        myChip8->drawScreen(window);
                 }
             }
         }
@@ -72,24 +73,37 @@ int main(int argc, char *argv[])
         while (window.isOpen()) {
             sf::Event event = sf::Event{};
             while(window.pollEvent(event)) {
-                if(event.type == sf::Event::Closed)
+                if(event.type == sf::Event::Closed) {
                     window.close();
+                    break;
+                }
+                else if(event.type == sf::Event::KeyReleased && myChip8->getIsWaitingForKeyboardInput()) {
+                    myChip8->loadKeyToV(event);
+                }
             }
-
             deltaTime = clock.restart();
 
             if(deltaTime > sf::milliseconds(100))
                 deltaTime = sf::milliseconds(100);
 
             accuTime += deltaTime;
-            while(accuTime >= sf::microseconds(16670)) {
-                myChip8->emulateCycle(event);
-                accuTime -= sf::microseconds(16670);
+            const sf::Time one_sixtieth_of_a_second = sf::microseconds(16670);
+            
+            // Goal: 500Hz clock speed (500 cycle emulations per second) with 60Hz updates
+            // for every 1/60s -> update timers
+            for(; accuTime >= one_sixtieth_of_a_second; accuTime -= one_sixtieth_of_a_second) {
+
+                myChip8->updateTimers();
+                
+                //  60*8 =(approx) 500
+                for(size_t i = 0; i < 8 && (!myChip8->getIsWaitingForKeyboardInput()); i++) {
+                    myChip8->emulateCycle(event);
+                    
+                    if(myChip8->getDrawFlag())
+                        myChip8->drawScreen(window);
+                }
             }
-            myChip8->drawScreen(window);
         }
     }
-    // TODO: Slow down the cycle speed.
-
     return 0;
 }
