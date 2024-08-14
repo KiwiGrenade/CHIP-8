@@ -1,5 +1,7 @@
 #include <memory>
 #include <string>
+#include <QApplication>
+#include "mainwindow.h"
 /*#include <SFML/Graphics.hpp>*/
 /*#include <SFML/Graphics/RenderWindow.hpp>*/
 /*#include <SFML/Window/Keyboard.hpp>*/
@@ -37,6 +39,10 @@ int main(int argc, char *argv[])
         error("No input file path!");
         return 2;
     }
+
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
     /*sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};*/
     /*window.setFramerateLimit(60);*/
@@ -105,5 +111,6 @@ int main(int argc, char *argv[])
         /*    }*/
         /*}*/
     }
-    return 0;
+    int result = a.exec();
+    return result;
 }
