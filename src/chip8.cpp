@@ -1,5 +1,5 @@
-#include <SFML/Window/Window.hpp>
-#include <SFML/Window/Keyboard.hpp>
+/*#include <SFML/Window/Window.hpp>*/
+/*#include <SFML/Window/Keyboard.hpp>*/
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -35,15 +35,15 @@ Chip8::Chip8() {
     std::cout << std::endl;
 }
 
-void Chip8::drawScreen(sf::RenderWindow& window) {
-    for(unsigned short i = 0; i < Screen::height; ++i) {
-        for(unsigned short j = 0; j < Screen::width; ++j) {
-            std::shared_ptr<Pixel> pixel = screen_->getPixel(j, i);
-            window.draw(pixel->getShape());
-        }
-    }
-    window.display();
-}
+/*void Chip8::drawScreen(sf::RenderWindow& window) {*/
+/*    for(unsigned short i = 0; i < Screen::height; ++i) {*/
+/*        for(unsigned short j = 0; j < Screen::width; ++j) {*/
+/*            std::shared_ptr<Pixel> pixel = screen_->getPixel(j, i);*/
+/*            window.draw(pixel->getShape());*/
+/*        }*/
+/*    }*/
+/*    window.display();*/
+/*}*/
 
 void Chip8::loadFile(const std::string& filename) {
     std::filesystem::path filePath{filename};
@@ -109,83 +109,83 @@ void Chip8::drawSprite(
     }
 }
 
-using namespace sf;
+/*using namespace sf;*/
 
-const unsigned char Chip8::getKeyToChar(const sf::Keyboard::Scancode& key) {
-    switch (key) {
-        case Keyboard::Scan::Num1:
-            return 0x1;
-        case Keyboard::Scan::Num2:
-            return 0x2;
-        case Keyboard::Scan::Num3:
-            return 0x3;
-        case Keyboard::Scan::Q:
-            return 0x4;
-        case Keyboard::Scan::W:
-            return 0x5;
-        case Keyboard::Scan::E:
-            return 0x6;
-        case Keyboard::Scan::A:
-            return 0x7;
-        case Keyboard::Scan::S:
-            return 0x8;
-        case Keyboard::Scan::D:
-            return 0x9;
-        case Keyboard::Scan::Z:
-            return 0xA;
-        case Keyboard::Scan::C:
-            return 0xB;
-        case Keyboard::Scan::Num4:
-            return 0xC;
-        case Keyboard::Scan::R:
-            return 0xD;
-        case Keyboard::Scan::F:
-            return 0xE;
-        case Keyboard::Scan::V:
-            return 0xF;
-        default:
-            return 0x0;
-    }
-}
-
-const sf::Keyboard::Key Chip8::charToKey(const unsigned char& x) {
-    switch(V_[x]) {
-        case 0x1:
-            return Keyboard::Num1;
-        case 0x2:
-            return Keyboard::Num2;
-        case 0x3:
-            return Keyboard::Num3;
-        case 0x4:
-            return Keyboard::Q;
-        case 0x5:
-            return Keyboard::W;
-        case 0x6:
-            return Keyboard::E;
-        case 0x7:
-            return Keyboard::A;
-        case 0x8:
-            return Keyboard::S;
-        case 0x9:
-            return Keyboard::D;
-        case 0xA:
-            return Keyboard::Z;
-        case 0xB:
-            return Keyboard::C;
-        case 0xC:
-            return Keyboard::Num4;
-        case 0xD:
-            return Keyboard::R;
-        case 0xE:
-            return Keyboard::F;
-        case 0xF:
-            return Keyboard::V;
-        case 0x0:
-            return Keyboard::X;
-        default:
-            return Keyboard::Unknown;
-    };
-}
+/*const unsigned char Chip8::getKeyToChar(const sf::Keyboard::Scancode& key) {*/
+/*    switch (key) {*/
+/*        case Keyboard::Scan::Num1:*/
+/*            return 0x1;*/
+/*        case Keyboard::Scan::Num2:*/
+/*            return 0x2;*/
+/*        case Keyboard::Scan::Num3:*/
+/*            return 0x3;*/
+/*        case Keyboard::Scan::Q:*/
+/*            return 0x4;*/
+/*        case Keyboard::Scan::W:*/
+/*            return 0x5;*/
+/*        case Keyboard::Scan::E:*/
+/*            return 0x6;*/
+/*        case Keyboard::Scan::A:*/
+/*            return 0x7;*/
+/*        case Keyboard::Scan::S:*/
+/*            return 0x8;*/
+/*        case Keyboard::Scan::D:*/
+/*            return 0x9;*/
+/*        case Keyboard::Scan::Z:*/
+/*            return 0xA;*/
+/*        case Keyboard::Scan::C:*/
+/*            return 0xB;*/
+/*        case Keyboard::Scan::Num4:*/
+/*            return 0xC;*/
+/*        case Keyboard::Scan::R:*/
+/*            return 0xD;*/
+/*        case Keyboard::Scan::F:*/
+/*            return 0xE;*/
+/*        case Keyboard::Scan::V:*/
+/*            return 0xF;*/
+/*        default:*/
+/*            return 0x0;*/
+/*    }*/
+/*}*/
+/**/
+/*const sf::Keyboard::Key Chip8::charToKey(const unsigned char& x) {*/
+/*    switch(V_[x]) {*/
+/*        case 0x1:*/
+/*            return Keyboard::Num1;*/
+/*        case 0x2:*/
+/*            return Keyboard::Num2;*/
+/*        case 0x3:*/
+/*            return Keyboard::Num3;*/
+/*        case 0x4:*/
+/*            return Keyboard::Q;*/
+/*        case 0x5:*/
+/*            return Keyboard::W;*/
+/*        case 0x6:*/
+/*            return Keyboard::E;*/
+/*        case 0x7:*/
+/*            return Keyboard::A;*/
+/*        case 0x8:*/
+/*            return Keyboard::S;*/
+/*        case 0x9:*/
+/*            return Keyboard::D;*/
+/*        case 0xA:*/
+/*            return Keyboard::Z;*/
+/*        case 0xB:*/
+/*            return Keyboard::C;*/
+/*        case 0xC:*/
+/*            return Keyboard::Num4;*/
+/*        case 0xD:*/
+/*            return Keyboard::R;*/
+/*        case 0xE:*/
+/*            return Keyboard::F;*/
+/*        case 0xF:*/
+/*            return Keyboard::V;*/
+/*        case 0x0:*/
+/*            return Keyboard::X;*/
+/*        default:*/
+/*            return Keyboard::Unknown;*/
+/*    };*/
+/*}*/
 
 void Chip8::printData(
     const unsigned short& x,
@@ -199,13 +199,13 @@ void Chip8::printData(
                 << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc_-2 << " | " << sp_ << std::endl;
 }
 
-void Chip8::loadKeyToV(const sf::Event& event) {
-    isWaitingForKeyboardInput_ = false;
-    V_[lastX_] = getKeyToChar(event.key.scancode);
-    pc_ += 2;
-}
+/*void Chip8::loadKeyToV(const sf::Event& event) {*/
+/*    isWaitingForKeyboardInput_ = false;*/
+/*    V_[lastX_] = getKeyToChar(event.key.scancode);*/
+/*    pc_ += 2;*/
+/*}*/
 
-void Chip8::emulateCycle(const sf::Event& event) {
+void Chip8::emulateCycle() {
     opcode_ = memory_->getOpcode(pc_);
     pc_ += 2;
     drawFlag_ = false;
@@ -336,11 +336,11 @@ void Chip8::emulateCycle(const sf::Event& event) {
         case 0xE000:
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V_[X] is pressed
-                    if(sf::Keyboard::isKeyPressed(charToKey(x)))
+                    /*if(sf::Keyboard::isKeyPressed(charToKey(x)))*/
                         pc_ += 2;
                     break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V_[X] is NOT pressed
-                    if(!sf::Keyboard::isKeyPressed(charToKey(x)))
+                    /*if(!sf::Keyboard::isKeyPressed(charToKey(x)))*/
                         pc_ += 2;
                     break;
                 default:

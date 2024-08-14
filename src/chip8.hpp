@@ -2,8 +2,8 @@
 #define CHIP8_HPP
 
 #include <memory>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include "SFML/Window/Keyboard.hpp"
+/*#include <SFML/Graphics/RenderWindow.hpp>*/
+/*#include "SFML/Window/Keyboard.hpp"*/
 #include "display.hpp"
 #include "memory.hpp"
 
@@ -11,10 +11,10 @@ class Chip8 {
 public:
 
     Chip8(); // initialize all components
-    void drawScreen(sf::RenderWindow& window);
+    /*void drawScreen(sf::RenderWindow& window);*/
     void loadFile(const std::string& filename);
-    void emulateCycle(const sf::Event& event);
-    void loadKeyToV(const sf::Event& event);
+    void emulateCycle();
+    /*void loadKeyToV(const sf::Event& event);*/
     void updateTimers();
 
     inline Memory& getMemory() { return *memory_; }
@@ -44,8 +44,8 @@ private:
     std::unique_ptr<Memory> memory_;
     std::unique_ptr<Screen> screen_;
 
-    const sf::Keyboard::Key charToKey(const unsigned char& x);
-    const unsigned char getKeyToChar(const sf::Keyboard::Scancode& key);
+    /*const sf::Keyboard::Key charToKey(const unsigned char& x);*/
+    /*const unsigned char getKeyToChar(const sf::Keyboard::Scancode& key);*/
     void drawSprite(
         const unsigned short n,
         const unsigned short x,

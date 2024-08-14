@@ -3,22 +3,22 @@
 
 #include <memory>
 #include <array>
-#include "SFML/System/Vector2.hpp"
-#include <SFML/Graphics.hpp>
-#include <SFML/Graphics/RectangleShape.hpp>
+/*#include "SFML/System/Vector2.hpp"*/
+/*#include <SFML/Graphics.hpp>*/
+/*#include <SFML/Graphics/RectangleShape.hpp>*/
 #include "component.hpp"
 
 class Pixel {
-    sf::RectangleShape pix;
+    /*sf::RectangleShape pix;*/
 
 public:
     static constexpr float dim = 10.f;
     
-    Pixel(const sf::Vector2f& position);
+    /*Pixel(const sf::Vector2f& position);*/
 
     bool getState();
     void setState(const bool& state);
-    sf::RectangleShape& getShape();
+    /*sf::RectangleShape& getShape();*/
 
     ~Pixel() = default;
 };
