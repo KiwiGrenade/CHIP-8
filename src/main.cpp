@@ -1,6 +1,9 @@
 #include <memory>
+#include <qgraphicsscene.h>
 #include <string>
 #include <QApplication>
+#include <QWidget>
+#include <QGraphicsView>
 #include "mainwindow.h"
 /*#include <SFML/Graphics.hpp>*/
 /*#include <SFML/Graphics/RenderWindow.hpp>*/
@@ -11,6 +14,8 @@
 
 bool Options::verbose = false;
 bool Options::debug = false;
+
+std::shared_ptr<QImage> Screen::image_;
 
 int main(int argc, char *argv[])
 {
@@ -41,8 +46,6 @@ int main(int argc, char *argv[])
     }
 
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
 
     /*sf::RenderWindow window = sf::RenderWindow{ { 640u, 320u}, "CHIP-8"};*/
     /*window.setFramerateLimit(60);*/
@@ -53,9 +56,12 @@ int main(int argc, char *argv[])
     /*sf::Time prevTime;*/
     /*sf::Time currTime;*/
 
-    std::unique_ptr<Chip8> myChip8;
-    myChip8 = std::make_unique<Chip8>();
+    auto myChip8 = std::make_unique<Chip8>();
     myChip8->loadFile(inputFileName);
+
+    auto w = std::make_unique<MainWindow>(Screen::image_);
+
+    w->show();
 
     if (Options::verbose)
         myChip8->getMemory().printProgram();
@@ -112,5 +118,9 @@ int main(int argc, char *argv[])
         /*}*/
     }
     int result = a.exec();
+
+    std::cout << "nadal jedzie" << std::endl;
+
     return result;
 }
+
