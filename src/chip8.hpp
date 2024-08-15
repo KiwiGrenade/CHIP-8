@@ -2,6 +2,7 @@
 #define CHIP8_HPP
 
 #include <memory>
+#include "mainwindow.h"
 /*#include <SFML/Graphics/RenderWindow.hpp>*/
 /*#include "SFML/Window/Keyboard.hpp"*/
 #include "display.hpp"
@@ -11,7 +12,7 @@ class Chip8 {
 public:
 
     Chip8(); // initialize all components
-    /*void drawScreen(sf::RenderWindow& window);*/
+    /*void drawScreen(MainWindow& window);*/
     void loadFile(const std::string& filename);
     void emulateCycle();
     /*void loadKeyToV(const sf::Event& event);*/

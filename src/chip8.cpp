@@ -1,5 +1,3 @@
-/*#include <SFML/Window/Window.hpp>*/
-/*#include <SFML/Window/Keyboard.hpp>*/
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
@@ -35,9 +33,9 @@ Chip8::Chip8() {
     std::cout << std::endl;
 }
 
-/*void Chip8::drawScreen(sf::RenderWindow& window) {*/
-/*    for(unsigned short i = 0; i < Screen::height; ++i) {*/
-/*        for(unsigned short j = 0; j < Screen::width; ++j) {*/
+/*void Chip8::drawScreen(MainWindow& window) {*/
+/*    for(unsigned short i = 0; i < Screen::height_; ++i) {*/
+/*        for(unsigned short j = 0; j < Screen::width_; ++j) {*/
 /*            std::shared_ptr<Pixel> pixel = screen_->getPixel(j, i);*/
 /*            window.draw(pixel->getShape());*/
 /*        }*/
@@ -87,18 +85,18 @@ void Chip8::drawSprite(
 
     for(unsigned short i = 0; i < n; ++i) {
 
-        unsigned short yrow = (V_[y] % Screen::height) + i;
+        unsigned short yrow = (V_[y] % Screen::height_) + i;
         unsigned char row = (*memory_)[I_+i];
 
-        if(yrow >= Screen::height)
+        if(yrow >= Screen::height_)
             continue;
 
         for(unsigned char j = 0; j < 8; ++j) {
 
-            unsigned short xcol = (V_[x] % Screen::width) + j;
+            unsigned short xcol = (V_[x] % Screen::width_) + j;
             bool curr_bit = (row >> (8-j-1)) & 1;
 
-            if(xcol >= Screen::width)
+            if(xcol >= Screen::width_)
                 continue;
 
             std::shared_ptr<Pixel> pixel = screen_->getPixel(xcol, yrow);
