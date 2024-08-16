@@ -1,16 +1,15 @@
 #include <memory>
-#include <qgraphicsscene.h>
-#include <string>
+/*#include <string>*/
 #include <QApplication>
 #include <QWidget>
 #include <QGraphicsView>
+#include "utils.hpp"
 #include "mainwindow.h"
 /*#include <SFML/Graphics.hpp>*/
 /*#include <SFML/Graphics/RenderWindow.hpp>*/
 /*#include <SFML/Window/Keyboard.hpp>*/
 /*#include "SFML/System/Time.hpp"*/
 #include "chip8.hpp"
-#include "utils.hpp"
 
 bool Options::verbose = false;
 bool Options::debug = false;
@@ -19,31 +18,31 @@ std::shared_ptr<QImage> Screen::image_;
 
 int main(int argc, char *argv[])
 {
-    if(argc < 2) {
-        error("Too few arguments!");
-        return 2;
-    }
-
-    std::string inputFileName;
-    for(size_t i = 1; i < argc; ++i) {
-        if(argv[i][0] == '-') {
-            for(size_t j = 1; argv[i][j] != '\0'; j++) {
-                char& c = argv[i][j];
-                if(c == 'v' || c == 'V')
-                    Options::verbose = true;
-                else if(c == 'd' || c == 'D')
-                    Options::debug = true;
-            }
-        }
-        else {
-            inputFileName = argv[i];
-        }
-    }
-
-    if(inputFileName.empty()) {
-        error("No input file path!");
-        return 2;
-    }
+    /*if(argc < 2) {*/
+    /*    error("Too few arguments!");*/
+    /*    return 2;*/
+    /*}*/
+    /**/
+    /*std::string inputFileName;*/
+    /*for(size_t i = 1; i < argc; ++i) {*/
+    /*    if(argv[i][0] == '-') {*/
+    /*        for(size_t j = 1; argv[i][j] != '\0'; j++) {*/
+    /*            char& c = argv[i][j];*/
+    /*            if(c == 'v' || c == 'V')*/
+    /*                Options::verbose = true;*/
+    /*            else if(c == 'd' || c == 'D')*/
+    /*                Options::debug = true;*/
+    /*        }*/
+    /*    }*/
+    /*    else {*/
+    /*        inputFileName = argv[i];*/
+    /*    }*/
+    /*}*/
+    /**/
+    /*if(inputFileName.empty()) {*/
+    /*    error("No input file path!");*/
+    /*    return 2;*/
+    /*}*/
 
     QApplication a(argc, argv);
 
@@ -57,7 +56,7 @@ int main(int argc, char *argv[])
     /*sf::Time currTime;*/
 
     auto myChip8 = std::make_unique<Chip8>();
-    myChip8->loadFile(inputFileName);
+    /*myChip8->loadFile(inputFileName);*/
 
     auto w = std::make_unique<MainWindow>(Screen::image_);
 
