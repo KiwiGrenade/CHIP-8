@@ -30,6 +30,40 @@
     </item>
    </layout>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>640</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuROMS">
+    <property name="title">
+     <string>ROMS</string>
+    </property>
+    <addaction name="actionLoad"/>
+    <addaction name="actionReload"/>
+   </widget>
+   <addaction name="menuROMS"/>
+  </widget>
+  <action name="actionLoad">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::SystemSearch"/>
+   </property>
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionReload">
+   <property name="text">
+    <string>Reload</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload ROM</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

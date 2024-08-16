@@ -19,6 +19,10 @@ public:
     MainWindow(std::shared_ptr<QImage> image, QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_actionLoad_triggered();
+    void on_actionReload_triggered();
+
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<QGraphicsScene> scene;
