@@ -3,6 +3,7 @@
 
 #include <array>
 #include <vector>
+#include <cstdint>
 #include "component.hpp"
 
 /* CHIP-8 has 4KB memory (4096 bytes), from location 0x000 (0) to 0xFFF (4095):
@@ -10,13 +11,13 @@
      * + 0x200 (512) to 0xFFF (4095) - program memory (ETI 660 programs start at 0x600 (1536))*/
 
 struct Memory : Component {
-    static constexpr unsigned short size = 4096;
-    static constexpr unsigned short fontsetSize = 80;
-    static constexpr unsigned short programBegin = 512;
-    std::array<unsigned char, size> arr{0};
-    unsigned short programSize = 0;
+    static constexpr uint16_t size = 4096;
+    static constexpr uint16_t fontsetSize = 80;
+    static constexpr uint16_t programBegin = 512;
+    std::array<uint8_t, size> arr{0};
+    uint16_t programSize = 0;
 
-    static constexpr unsigned char fontset [fontsetSize] { 
+    static constexpr uint8_t fontset [fontsetSize] { 
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -40,18 +41,18 @@ struct Memory : Component {
 
     void clear();
 
-    void loadProgram(std::vector<unsigned char>& program);
+    void loadProgram(std::vector<uint8_t>& program);
 
     void printProgram();
 
     void loadFontset();
 
-    const unsigned short getOpcode(const unsigned short& pc);
+    const uint16_t getOpcode(const uint16_t& pc);
 
-    static const unsigned short getSpriteLocation(const unsigned char& digit);
+    static const uint16_t getSpriteLocation(const uint8_t& digit);
 
-    unsigned char& operator[](const std::size_t idx);
-    const unsigned char& operator[](const std::size_t idx) const;
+    uint8_t& operator[](const std::size_t idx);
+    const uint8_t& operator[](const std::size_t idx) const;
 
     ~Memory() = default;
 };

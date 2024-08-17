@@ -4,29 +4,17 @@
 #include <iostream>
 #include <QImage>
 #include <QFileDialog>
-/*#include "utils.hpp"*/
+#include "chip8.hpp"
 
-MainWindow::MainWindow(std::shared_ptr<QImage> image, QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-
-    /**/
-    /*int sizeX = 640;*/
-    /*int sizeY = 320;*/
-    /**/
-    /*QImage image = QImage(sizeX, sizeY, QImage::Format_Mono);*/
-    /**/
-    /*image.fill(0);*/
     scene = std::make_shared<QGraphicsScene>(this);
-
-    scene->addPixmap(QPixmap::fromImage(*image));
-
-    /*graphics->addPixmap(QPixmap::fromImage(image));*/
-
+    /*scene->addPixmap(QPixmap::fromImage(*Screen::image_));*/
     ui->graphicsView->setScene(scene.get());
+    connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::onClicked);
 }
 
 MainWindow::~MainWindow()
@@ -35,14 +23,25 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_actionLoad_triggered() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open CHIP-8 ROM"), "", tr(" ROMs (*.ch8)"));
+    chip8::clear();
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Choose ROM"), "", tr(" ROMs (*.ch8)"));
     if(fileName.isEmpty()) {
-        //TODO: Change this to error() from utils.hpp. Problem with including utils.hpp
         std::cerr << "Could not open file: " << fileName.toStdString() << std::endl;
+        exit(2);
         /*error("Could not open file: " + fileName.toStdString());*/
     }
+    chip8::loadFile(fileName.toStdString());
+    chip8::getMemory().printProgram();
+    chip8::start();
 }
 
 void MainWindow::on_actionReload_triggered() {
 
 }
+
+void MainWindow::onClicked() {
+    chip8::emulateCycle();
+    if(chip8::getDrawFlag())
+        scene->addPixmap(QPixmap::fromImage(*Screen::image_));
+}
+
