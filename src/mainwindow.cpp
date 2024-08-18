@@ -11,10 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    scene = std::make_shared<QGraphicsScene>(this);
-    /*scene->addPixmap(QPixmap::fromImage(*Screen::image_));*/
-    ui->graphicsView->setScene(scene.get());
-    connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::onClicked);
+
+    myChip8 = std::make_unique<Chip8>();
 }
 
 MainWindow::~MainWindow()
@@ -23,25 +21,62 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_actionLoad_triggered() {
-    chip8::clear();
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choose ROM"), "", tr(" ROMs (*.ch8)"));
     if(fileName.isEmpty()) {
         std::cerr << "Could not open file: " << fileName.toStdString() << std::endl;
         exit(2);
         /*error("Could not open file: " + fileName.toStdString());*/
     }
-    chip8::loadFile(fileName.toStdString());
-    chip8::getMemory().printProgram();
-    chip8::start();
+    myChip8->loadFile(fileName.toStdString());
+    myChip8->getMemory().printProgram();
+
+    /*for(int i = 0; i < 256; ++i) {*/
+        /*chip8::emulateCycle();*/
+	    /*deltaTime = clock.restart();*/
+	    /**/
+	    /*if(deltaTime > sf::milliseconds(100))*/
+	    /*    deltaTime = sf::milliseconds(100);*/
+	    /**/
+	    /*accuTime += deltaTime;*/
+	    /*const sf::Time one_sixtieth_of_a_second = sf::microseconds(16670);*/
+	    /**/
+	    /*// Goal: 500Hz clock speed (500 cycle emulations per second) with 60Hz updates*/
+	    /*// for every 1/60s -> update timers*/
+	    /*for(; accuTime >= one_sixtieth_of_a_second; accuTime -= one_sixtieth_of_a_second) {*/
+	    /**/
+	    /*    myChip8->updateTimers();*/
+	    /**/
+	    /*    //  60*8 =(approx) 500*/
+	    /*    for(size_t i = 0; i < 8 && (!myChip8->getIsWaitingForKeyboardInput()); i++) {*/
+	    /*        myChip8->emulateCycle(event);*/
+	    /**/
+	    /*        if(myChip8->getDrawFlag())*/
+	    /*            myChip8->drawScreen(window);*/
+        /*if(chip8::getDrawFlag())*/
+            /*scene->addPixmap(QPixmap::fromImage(*Screen::image_));*/
+    /*}*/
 }
 
 void MainWindow::on_actionReload_triggered() {
 
 }
 
-void MainWindow::onClicked() {
-    chip8::emulateCycle();
-    if(chip8::getDrawFlag())
-        scene->addPixmap(QPixmap::fromImage(*Screen::image_));
+void MainWindow::on_actionStartEmulator_triggered() {
+    if(myChip8->getIsRunnig())
+        return;
+    myChip8->start();
 }
 
+void MainWindow::on_actionStopEmulator_triggered() {
+    if(!myChip8->getIsRunnig())
+        return;
+    myChip8->stop();
+}
+
+void MainWindow::on_actionStepEmulator_triggered() {
+    myChip8->emulateCycle();
+}
+
+void MainWindow::on_actionPauseEmulator_triggered() {
+    std::cout << "PAUSE" << std::endl;
+}

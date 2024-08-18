@@ -10,8 +10,6 @@
 bool Options::verbose = false;
 bool Options::debug = false;
 
-std::shared_ptr<QImage> Screen::image_;
-
 int main(int argc, char *argv[])
 {
     Options::verbose = true;

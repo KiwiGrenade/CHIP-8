@@ -1,44 +1,65 @@
 #include "display.hpp"
+#include <cstdint>
 #include <memory>
 
-std::shared_ptr<QImage> Screen::image_;
 
-Pixel::Pixel(const uint16_t& x, const uint16_t& y) :
-    x_(x),
-    y_(y),
-    state_(false)
-{}
-
-void Pixel::setState(const bool& state) {
-    state_ = state;
-    QColor color =  state ? ON : OFF;
-    for(size_t i = 0; i < Screen::pixelSize_; i++) {
-        for(size_t j = 0; j < Screen::pixelSize_; j++) {
-            Screen::image_->setPixelColor(x_ + j, y_ + i, color);
-        }
-    }
-}
+std::array<std::array<std::shared_ptr<Pixel>, Screen::yRes_>, Screen::xRes_> Screen::pixels_;
 
 Screen::Screen() {
-    image_ = std::make_shared<QImage>(width_ * pixelSize_, height_ * pixelSize_, QImage::Format_RGB32);
-    image_->fill(Pixel::OFF);
-
     // set pixel position 
-    for(uint16_t i = 0; i < height_; ++i) {
+    for(uint16_t i = 0; i < yRes_; ++i) {
         float y = float(i * pixelSize_);
-        for(uint16_t j = 0; j < width_; ++j) {
+        for(uint16_t j = 0; j < xRes_; ++j) {
             float x = float(j * pixelSize_);
-            pixels_[i * width_ + j] = std::make_shared<Pixel>(x, y);
+            pixels_[i][j] = std::make_unique<Pixel>(x, y);
         }
     }
 }
 
 void Screen::clear() {
-    for(auto a : pixels_)
-        a->setState(false);
+    for(uint16_t i = 0; i < yRes_; ++i) {
+        for(uint16_t j = 0; j < xRes_; ++j) {
+
+        }
+    }
 }
 
 std::shared_ptr<Pixel> Screen::getPixel(const uint16_t& x, const uint16_t& y) {
-    return pixels_[(y % height_) * width_ + (x % width_)];
+    return pixels_[x][y];
+}
+
+
+void Screen::drawSprite(
+    const uint16_t& n,
+    const uint16_t& x,
+    const uint16_t& y,
+    const uint16_t& I,
+    const uint8_t V[16],
+    uint8_t& VF,
+    std::shared_ptr<Memory> memory) {
+    VF = 0;
+
+    for(uint16_t i = 0; i < n; ++i) {
+
+        uint16_t yrow = (V[y] % Screen::yRes_) + i;
+        uint8_t row = (*memory)[I+i];
+
+        if(yrow >= Screen::yRes_)
+            continue;
+
+        for(uint8_t j = 0; j < 8; ++j) {
+
+            uint16_t xcol = (V[x] % Screen::xRes_) + j;
+            bool currbit = (row >> (8-j-1)) & 1;
+
+            if(xcol >= Screen::xRes_)
+                continue;
+
+            std::shared_ptr<Pixel> pixel = getPixel(xcol, yrow);
+            if(pixel->state_ == true && currbit)
+                VF = 1;
+            pixel->state_ = pixel->state_ ^ currbit;
+        }
+    }
 }
 

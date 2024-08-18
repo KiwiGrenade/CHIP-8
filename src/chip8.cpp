@@ -5,51 +5,16 @@
 #include <string>
 #include <iostream>
 #include <time.h>
-#include <filesystem>
 #include <QThread>
 #include "chip8.hpp"
 #include "utils.hpp"
 
-namespace chip8 {
-
-size_t      nCycle;
-bool        drawFlag;
-uint16_t    lastX;
-uint16_t    pc;      // program counter
-uint16_t    opcode;  // current opcode (opcodes are 2 bytes)
-uint16_t    I;       // memory pointer
-uint16_t    sp;      // stack pointer
-uint8_t     V[16];    // 16 * 1 byte registers (VF is carry flag)
-uint8_t     soundtimer;
-uint8_t     delaytimer;
-uint16_t    stack[16];
-uint8_t     key[16];
-bool        isWaitingForKeyboardInput;
-bool        isRunning;
-
-std::filesystem::path pathToROM;
-
-std::unique_ptr<Memory> memory;
-std::unique_ptr<Screen> screen;
-
-Memory& getMemory() { return *memory; }
-Screen& getScreen() { return *screen; }
-bool getDrawFlag() { return drawFlag; }
-bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput; }
-uint8_t getDelayTimer() { return delaytimer; }
-uint8_t getSoundTimer() { return soundtimer; }
-void start() { isRunning = true; }
-
-void stop() {
-    if(!isRunning)
-        return;
-
-    isRunning = false;
+Chip8::Chip8() {
+    std::srand(time(nullptr));
+    clear();
 }
 
-void clear() {
-    std::srand(time(nullptr));
-
+void Chip8::clear() {
     isWaitingForKeyboardInput = false;
     nCycle = 0;
     pc = Memory::programBegin;
@@ -60,7 +25,7 @@ void clear() {
     sp = 0;
     drawFlag = false;
 
-    memory = std::make_unique<Memory>();
+    memory = std::make_shared<Memory>();
     screen = std::make_unique<Screen>();
     
     screen->clear();
@@ -68,20 +33,9 @@ void clear() {
     std::fill(std::begin(V), std::end(V), 0);
     memory->clear();
     memory->loadFontset();
-    std::cout << std::endl;
 }
 
-/*void drawScreen(MainWindow& window) {*/
-/*    for(uint16_t i = 0; i < Screen::height_; ++i) {*/
-/*        for(uint16_t j = 0; j < Screen::width_; ++j) {*/
-/*            std::sharedptr<Pixel> pixel = screen->getPixel(j, i);*/
-/*            window.draw(pixel->getShape());*/
-/*        }*/
-/*    }*/
-/*    window.display();*/
-/*}*/
-
-void loadFile(const std::string& filename) {
+void Chip8::loadFile(const std::string& filename) {
     pathToROM = filename;
     if(std::filesystem::exists(pathToROM) == false) {
         error("File " + pathToROM.string() + " does not exist!");
@@ -102,14 +56,14 @@ void loadFile(const std::string& filename) {
     inputFile.close();
 }
 
-void updateTimers() {
+void Chip8::updateTimers() {
     if(delaytimer > 0)
         delaytimer--;
     if(soundtimer > 0)
         soundtimer--;
 }
 
-void emulateCycle() {
+void Chip8::emulateCycle() {
     if(!isRunning)
         return;
     opcode = memory->getOpcode(pc);
@@ -236,7 +190,7 @@ void emulateCycle() {
             V[x] = (rand() % 256) & kk;
             break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
-            drawSprite(n, x, y, VF);
+            Screen::drawSprite(n, x, y, I, V, VF, memory);
             drawFlag = true;
             break;
         case 0xE000:
@@ -305,44 +259,12 @@ void emulateCycle() {
 }
 
 
-namespace {
-void unknownOpcode(const uint16_t& opcode) {
+void Chip8::unknownOpcode(const uint16_t& opcode) {
     printf("Unknown opcode: 0x%04x\n", opcode);
     exit(2);
 }
 
-void drawSprite(
-    const uint16_t n,
-    const uint16_t x,
-    const uint16_t y,
-    uint8_t &VF) {
-    VF = 0;
-
-    for(uint16_t i = 0; i < n; ++i) {
-
-        uint16_t yrow = (V[y] % Screen::height_) + i;
-        uint8_t row = (*memory)[I+i];
-
-        if(yrow >= Screen::height_)
-            continue;
-
-        for(uint8_t j = 0; j < 8; ++j) {
-
-            uint16_t xcol = (V[x] % Screen::width_) + j;
-            bool currbit = (row >> (8-j-1)) & 1;
-
-            if(xcol >= Screen::width_)
-                continue;
-
-            std::shared_ptr<Pixel> pixel = screen->getPixel(xcol, yrow);
-            if(pixel->getState() == true && currbit)
-                VF = 1;
-            pixel->setState(pixel->getState() ^ currbit);
-        }
-    }
-}
-
-void printData(
+void Chip8::printData(
     const uint16_t& x,
     const uint16_t& y,
     const uint16_t& n,
@@ -353,7 +275,4 @@ void printData(
                 << "| " << nCycle << " | " << std::hex << opcode << " | " << x << " | " << y 
                 << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc-2 << " | " << sp << std::endl;
 }
-
-} // private namespace
-} // namespace chip8
 
