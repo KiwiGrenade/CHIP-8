@@ -11,38 +11,24 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Chip-8 Emulator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignBottom">
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>STEP</string>
-      </property>
-      <property name="autoDefault">
-       <bool>false</bool>
-      </property>
-      <property name="default">
-       <bool>false</bool>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-     </widget>
+     <widget class="EmulationScreenWidget" name="screenWidget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -64,6 +50,21 @@
    </widget>
    <addaction name="menuROMS"/>
   </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionStartEmulator"/>
+   <addaction name="actionStopEmulator"/>
+   <addaction name="actionStepEmulator"/>
+   <addaction name="actionPauseEmulator"/>
+  </widget>
   <action name="actionLoad">
    <property name="icon">
     <iconset theme="QIcon::ThemeIcon::SystemSearch"/>
@@ -80,7 +81,57 @@
     <string>Reload ROM</string>
    </property>
   </action>
+  <action name="actionStartEmulator">
+   <property name="text">
+    <string>Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Starts the emulator</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionStopEmulator">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionStepEmulator">
+   <property name="text">
+    <string>Step</string>
+   </property>
+   <property name="toolTip">
+    <string>Emulates one cycle</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionPauseEmulator">
+   <property name="text">
+    <string>Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>Pauses the emulation</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
  </widget>
+ <layoutdefault spacing="6" margin="11"/>
+  <customwidgets>
+   <customwidget>
+    <class>EmulationScreenWidget</class>
+    <extends>QWidget</extends>
+    <header>EmulationScreenWidget.h</header>
+    <container>1</container>
+   </customwidget>
+  </customwidgets>
  <resources/>
  <connections/>
 </ui>

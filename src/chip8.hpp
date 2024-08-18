@@ -2,48 +2,69 @@
 #define CHIP8_HPP
 
 #include <cstdint>
+#include <filesystem>
 #include "display.hpp"
 #include "memory.hpp"
+#include <QThread>
 
-namespace chip8 {
+class Chip8 : public QThread {
+public:
+    Chip8();
+    ~Chip8() = default;
+    inline Memory& getMemory() { return *memory; }
+    inline Screen& getScreen() { return *screen; }
+    inline bool getDrawFlag() { return drawFlag; }
+    inline bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput; }
+    inline uint8_t getDelayTimer() { return delaytimer; }
+    inline uint8_t getSoundTimer() { return soundtimer; }
+    inline void start() { isRunning = true; }
+    inline void stop() { if(!isRunning){ return; } isRunning = false; }
+    inline bool getIsRunnig() { return isRunning; }
+    void loadFile(const std::string& filename);
+    void emulateCycle();
+    void clear();
+ 
+private: 
+    size_t      nCycle;
+    bool        drawFlag;
+    uint16_t    lastX;
+    uint16_t    pc;      // program counter
+    uint16_t    opcode;  // current opcode (opcodes are 2 bytes)
+    uint16_t    I;       // memory pointer
+    uint16_t    sp;      // stack pointer
+    uint8_t     V[16];    // 16 * 1 byte registers (VF is carry flag)
+    uint8_t     soundtimer;
+    uint8_t     delaytimer;
+    uint16_t    stack[16];
+    uint8_t     key[16];
+    bool        isWaitingForKeyboardInput;
+    bool        isRunning;
 
-/*void drawScreen(MainWindow& window);*/
-void loadFile(const std::string& filename);
-void emulateCycle();
-/*void loadKeyToV(const sf::Event& event);*/
-void clear();
-void updateTimers();
-void setUp(const std::string& filename);
-void start();
-void stop();
+    std::filesystem::path pathToROM;
 
-Memory& getMemory(); 
-Screen& getScreen();
-bool getDrawFlag();
-bool getIsWaitingForKeyboardInput();
-uint8_t getDelayTimer();
-uint8_t getSoundTimer();
+    std::shared_ptr<Memory> memory;
+    std::unique_ptr<Screen> screen;
 
-// pseudo private
-namespace {
-void unknownOpcode(const uint16_t& opcode);
-void drawSprite(
-    const uint16_t n,
-    const uint16_t x,
-    const uint16_t y,
-    uint8_t& VF);
-void printData( 
-    const uint16_t& x,
-    const uint16_t& y,
-    const uint16_t& n,
-    const uint16_t& kk,
-    const uint16_t& VF,
-    const uint16_t& nnn);
+        /*void drawScreen(MainWindow& window);*/
+        /*void loadKeyToV(const sf::Event& event);*/
+    void updateTimers();
+    void unknownOpcode(const uint16_t& opcode);
+    void drawSprite(
+        const uint16_t n,
+        const uint16_t x,
+        const uint16_t y,
+        uint8_t& VF);
+    void printData( 
+        const uint16_t& x,
+        const uint16_t& y,
+        const uint16_t& n,
+        const uint16_t& kk,
+        const uint16_t& VF,
+        const uint16_t& nnn);
 
-/*const sf::Keyboard::Key charToKey(const uint8_t& x);*/
-/*const uint8_t getKeyToChar(const sf::Keyboard::Scancode& key);*/
-} // private namespace
-} // chip8
+    /*const sf::Keyboard::Key charToKey(const uint8_t& x);*/
+    /*const uint8_t getKeyToChar(const sf::Keyboard::Scancode& key);*/
+};
 
 #endif //CHIP8_HPP
 
