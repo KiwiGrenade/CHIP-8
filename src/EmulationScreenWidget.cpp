@@ -28,7 +28,7 @@ void EmulationScreenWidget::paintEvent(QPaintEvent * event) {
     
     for(uint16_t y = 0; y < yRes; ++y) {
         for(uint16_t x = 0; x < xRes; ++x) {
-            if(!Screen::pixels_[x][y])
+            if(!Screen::getPixel(x, y))
                 painter.fillRect(pixelWidth * x + xOffset, pixelHeight * y + yOffset, pixelWidth, pixelHeight, Qt::black);
         }
     }

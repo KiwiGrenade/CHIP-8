@@ -63,6 +63,37 @@ void Chip8::updateTimers() {
         soundtimer--;
 }
 
+void Chip8::drawSprite(
+    const uint16_t& n,
+    const uint16_t& x,
+    const uint16_t& y,
+    uint8_t& VF) {
+    VF = 0;
+
+    for(uint16_t i = 0; i < n; ++i) {
+
+        uint16_t yrow = (V[y] % Screen::yRes_) + i;
+        uint8_t row = (*memory)[I+i];
+
+        if(yrow >= Screen::yRes_)
+            continue;
+
+        for(uint8_t j = 0; j < 8; ++j) {
+
+            uint16_t xcol = (V[x] % Screen::xRes_) + j;
+            bool currbit = (row >> (8-j-1)) & 1;
+
+            if(xcol >= Screen::xRes_)
+                continue;
+
+            bool& pixel = screen->getPixel(xcol, yrow);
+            if(pixel == true && currbit)
+                VF = 1;
+            pixel = pixel ^ currbit;
+        }
+    }
+}
+
 void Chip8::emulateCycle() {
     if(!isRunning)
         return;
@@ -190,7 +221,7 @@ void Chip8::emulateCycle() {
             V[x] = (rand() % 256) & kk;
             break;
         case 0xD000: // 0xDXYN: Display n-byte sprite starting at memory location I at (V[X], V[Y]), V[F] = collision;
-            Screen::drawSprite(n, x, y, I, V, VF, memory);
+            drawSprite(n, x, y, VF);
             drawFlag = true;
             break;
         case 0xE000:

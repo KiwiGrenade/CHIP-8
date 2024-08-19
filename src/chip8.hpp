@@ -50,9 +50,9 @@ private:
     void updateTimers();
     void unknownOpcode(const uint16_t& opcode);
     void drawSprite(
-        const uint16_t n,
-        const uint16_t x,
-        const uint16_t y,
+        const uint16_t& n,
+        const uint16_t& x,
+        const uint16_t& y,
         uint8_t& VF);
     void printData( 
         const uint16_t& x,
