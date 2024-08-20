@@ -3,9 +3,7 @@
 
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <QReadWriteLock>
-#include "memory.hpp"
 #include "component.hpp"
 
 struct Screen : Component {
@@ -13,7 +11,8 @@ struct Screen : Component {
     ~Screen() = default;
 
     void clear();
-    static bool& getPixel(const uint16_t& x, const uint16_t& y);
+    static bool getPixel(const uint16_t& x, const uint16_t& y);
+    static void setPixel(const uint16_t& x, const uint16_t& y, bool state);
 
     static constexpr uint16_t   xRes_ = 64;
     static constexpr uint16_t   yRes_ = 32;

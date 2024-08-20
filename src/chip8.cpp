@@ -1,11 +1,14 @@
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <memory>
+#include <ratio>
 #include <string>
 #include <iostream>
 #include <time.h>
 #include <QThread>
+#include <QElapsedTimer>
 #include "chip8.hpp"
 #include "utils.hpp"
 
@@ -86,10 +89,11 @@ void Chip8::drawSprite(
             if(xcol >= Screen::xRes_)
                 continue;
 
-            bool& pixel = screen->getPixel(xcol, yrow);
+            bool pixel = screen->getPixel(xcol, yrow);
             if(pixel == true && currbit)
                 VF = 1;
-            pixel = pixel ^ currbit;
+
+            Screen::setPixel(xcol, yrow, pixel ^ currbit);
         }
     }
 }
@@ -289,6 +293,51 @@ void Chip8::emulateCycle() {
     nCycle++;
 }
 
+void Chip8::run() {
+    QElapsedTimer timer;
+    uint64_t deltaTime = 0;
+    uint64_t accuTime = 0;
+    uint64_t cyclesEmulated = 0;
+
+    timer.start();
+    while(isRunning) {
+        deltaTime = timer.nsecsElapsed() / 1000;
+        timer.restart();
+
+        if(deltaTime > 1000000)
+            deltaTime = 1000000;
+
+        accuTime += deltaTime;
+        for(;accuTime >= 16670; accuTime -= 16670) {
+            for(size_t i = 0; i < 8; ++i, ++cyclesEmulated) {
+                emulateCycle();
+            }
+        }
+
+	    /*deltaTime = clock.restart();*/
+	    /**/
+	    /*if(deltaTime > sf::milliseconds(100))*/
+	    /*    deltaTime = sf::milliseconds(100);*/
+	    /**/
+	    /*accuTime += deltaTime;*/
+	    /*const sf::Time one_sixtieth_of_a_second = sf::microseconds(16670);*/
+	    /**/
+	    /*// Goal: 500Hz clock speed (500 cycle emulations per second) with 60Hz updates*/
+	    /*// for every 1/60s -> update timers*/
+	    /*for(; accuTime >= one_sixtieth_of_a_second; accuTime -= one_sixtieth_of_a_second) {*/
+	    /**/
+	    /*    myChip8->updateTimers();*/
+	    /**/
+	    /*    //  60*8 =(approx) 500*/
+	    /*    for(size_t i = 0; i < 8 && (!myChip8->getIsWaitingForKeyboardInput()); i++) {*/
+	    /*        myChip8->emulateCycle(event);*/
+	    /**/
+	    /*        if(myChip8->getDrawFlag())*/
+	    /*            myChip8->drawScreen(window);*/
+        /*if(chip8::getDrawFlag())*/
+            /*scene->addPixmap(QPixmap::fromImage(*Screen::image_));*/
+    }
+}
 
 void Chip8::unknownOpcode(const uint16_t& opcode) {
     printf("Unknown opcode: 0x%04x\n", opcode);

@@ -17,12 +17,21 @@ public:
     inline bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput; }
     inline uint8_t getDelayTimer() { return delaytimer; }
     inline uint8_t getSoundTimer() { return soundtimer; }
-    inline void start() { isRunning = true; }
-    inline void stop() { if(!isRunning){ return; } isRunning = false; }
     inline bool getIsRunnig() { return isRunning; }
+    inline void stop() { 
+        if(!isRunning) 
+            return;
+        isRunning = false; 
+    }
+    inline void setRunning() {
+        if(isRunning)
+            return;
+        isRunning = true;
+    }
     void loadFile(const std::string& filename);
     void emulateCycle();
     void clear();
+    void run() override;
  
 private: 
     size_t      nCycle;
