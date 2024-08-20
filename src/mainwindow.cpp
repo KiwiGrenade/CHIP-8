@@ -62,14 +62,11 @@ void MainWindow::on_actionReload_triggered() {
 }
 
 void MainWindow::on_actionStartEmulator_triggered() {
-    if(myChip8->getIsRunnig())
-        return;
+    myChip8->setRunning();
     myChip8->start();
 }
 
 void MainWindow::on_actionStopEmulator_triggered() {
-    if(!myChip8->getIsRunnig())
-        return;
     myChip8->stop();
 }
 

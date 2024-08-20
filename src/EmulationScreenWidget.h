@@ -18,7 +18,7 @@ protected:
 
     QTimer repaintTimer;
 private:
-    constexpr static int timerInterval_ms = 107;
+    constexpr static int timerInterval_ms = 17;
     bool state;
 };
 
