@@ -2,28 +2,34 @@
 #define CHIP8_HPP
 
 #include <cstdint>
-#include <filesystem>
-#include "display.hpp"
-#include "memory.hpp"
+#include "Screen.hpp"
+#include "Memory.hpp"
 #include <QThread>
 
 class Chip8 : public QThread {
 public:
     Chip8();
     ~Chip8() = default;
+
     inline Memory& getMemory() { return *memory; }
     inline Screen& getScreen() { return *screen; }
     inline bool getDrawFlag() { return drawFlag; }
     inline bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput; }
-    inline uint8_t getDelayTimer() { return delaytimer; }
-    inline uint8_t getSoundTimer() { return soundtimer; }
-    inline bool getIsRunnig() { return isRunning; }
-    void stop();
-    void setRunning();
-    void loadFile(const std::string& filename);
+    inline uint8_t getDelayTimer() { return delayTimer; }
+    inline uint8_t getSoundTimer() { return soundTimer; }
+    inline bool isPaused() { return paused; }
+    inline bool isAlive() { return alive; }
+    
+    void loadFile(const std::string& fileName);
     void emulateCycle();
     void clear();
-    void run() override;
+    
+    // emulator control 
+    void restart();
+    void pause();
+    void unPause();
+    void stop();
+    void run() override; // start
  
 private: 
     size_t      nCycle;
@@ -34,14 +40,16 @@ private:
     uint16_t    I;       // memory pointer
     uint16_t    sp;      // stack pointer
     uint8_t     V[16];    // 16 * 1 byte registers (VF is carry flag)
-    uint8_t     soundtimer;
-    uint8_t     delaytimer;
+    uint8_t     soundTimer;
+    uint8_t     delayTimer;
     uint16_t    stack[16];
     uint8_t     key[16];
-    bool        isWaitingForKeyboardInput;
-    bool        isRunning;
 
-    std::filesystem::path pathToROM;
+    bool        isWaitingForKeyboardInput;
+    bool        paused;
+    bool        alive;
+
+    std::string ROMFileName;
 
     std::shared_ptr<Memory> memory;
     std::shared_ptr<Screen> screen;

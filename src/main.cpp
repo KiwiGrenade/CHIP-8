@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QGraphicsView>
 #include "utils.hpp"
-#include "mainwindow.h"
-#include "chip8.hpp"
+#include "MainWindow.hpp"
+#include "Chip8.hpp"
 
 bool Options::verbose = false;
 bool Options::debug = false;

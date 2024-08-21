@@ -1,4 +1,4 @@
-#include "EmulationScreenWidget.h"
+#include "EmulationScreenWidget.hpp"
 #include <cstdint>
 #include <QPainter>
 #include <QWidget>

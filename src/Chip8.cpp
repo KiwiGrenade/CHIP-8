@@ -1,85 +1,73 @@
-#include <chrono>
 #include <cstdio>
 #include <cstdlib>
-#include <fstream>
 #include <memory>
-#include <ratio>
 #include <string>
 #include <iostream>
 #include <time.h>
 #include <QThread>
 #include <QElapsedTimer>
-#include "chip8.hpp"
+#include "Chip8.hpp"
 #include "utils.hpp"
 
-Chip8::Chip8() {
+Chip8::Chip8() : 
+    paused(false),
+    alive(false),
+    memory(std::make_shared<Memory>()),
+    screen(std::make_shared<Screen>())
+    {
     std::srand(time(nullptr));
     clear();
 }
 
-void Chip8::stop() { 
-    if(!isRunning) 
-        return;
-    isRunning = false;
+void Chip8::loadFile(const std::string& fileName) {
+    memory->loadFile(fileName);
+}
+
+void Chip8::restart() {
+    paused = false;
+    clear();
+    memory->reloadFile();
+}
+
+void Chip8::pause() { 
+    paused = true;
+}
+
+void Chip8::unPause() {
+    paused = false;
+}
+
+void Chip8::stop() {
+    alive = false;
     wait();
 }
 
-void Chip8::setRunning() {
-    if(isRunning)
-        return;
-    isRunning = true;
-}
-
 void Chip8::clear() {
+    if(paused)
+        return;
     isWaitingForKeyboardInput = false;
     nCycle = 0;
     pc = Memory::programBegin;
-    soundtimer = 0;
-    delaytimer = 0;
+    soundTimer = 0;
+    delayTimer = 0;
     opcode = 0;
     I = 0;
     sp = 0;
     drawFlag = false;
 
-    memory = std::make_shared<Memory>();
-    screen = std::make_shared<Screen>();
-    
-    screen->clear();
     std::fill(std::begin(stack), std::end(stack), 0);
     std::fill(std::begin(V), std::end(V), 0);
-    memory->clear();
+   
     memory->loadFontset();
 }
 
-void Chip8::loadFile(const std::string& filename) {
-    memory->clear();
-
-    pathToROM = filename;
-    if(std::filesystem::exists(pathToROM) == false) {
-        error("File " + pathToROM.string() + " does not exist!");
-    }
-
-    auto length = std::filesystem::file_size(pathToROM);
-    std::ifstream inputFile(filename, std::ios_base::binary);
-
-    if((length == 0) || (inputFile.is_open() == false) || inputFile.bad()) {
-        error("Could not open file: " + pathToROM.string());
-    }
-
-    std::vector<uint8_t> buffer(length);
-    inputFile.read(reinterpret_cast<char*>(buffer.data()), length);
-    inputFile.close();
-
-    memory->loadProgram(buffer);
-
-    inputFile.close();
-}
-
 void Chip8::updateTimers() {
-    if(delaytimer > 0)
-        delaytimer--;
-    if(soundtimer > 0)
-        soundtimer--;
+    if (paused || !alive)
+        return;
+    if(delayTimer > 0)
+        delayTimer--;
+    if(soundTimer > 0)
+        soundTimer--;
 }
 
 void Chip8::drawSprite(
@@ -115,7 +103,7 @@ void Chip8::drawSprite(
 }
 
 void Chip8::emulateCycle() {
-    if(!isRunning)
+    if(paused || !alive || !memory->isFileLoaded())
         return;
     opcode = memory->getOpcode(pc);
     pc += 2;
@@ -261,18 +249,18 @@ void Chip8::emulateCycle() {
             break;
         case 0xF000:
             switch(opcode & 0x00FF){
-                case 0x0007: // 0xFX07: V[X] = delaytimer
-                    V[x] = delaytimer;
+                case 0x0007: // 0xFX07: V[X] = delayTimer
+                    V[x] = delayTimer;
                     break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
                     pc -= 2;
                     isWaitingForKeyboardInput = true;
                     break;
-                case 0x0015: // 0xFX15: delaytimer = V[X]
-                    delaytimer = V[x];
+                case 0x0015: // 0xFX15: delayTimer = V[X]
+                    delayTimer = V[x];
                     break;
-                case 0x0018: // 0xFX18: soundtimer = V[X]
-                    soundtimer = V[x];
+                case 0x0018: // 0xFX18: soundTimer = V[X]
+                    soundTimer = V[x];
                     break;
                 case 0x001E: // 0xFX1E: I = I + V[X]
                     I = I + V[x];
@@ -303,19 +291,26 @@ void Chip8::emulateCycle() {
             break; 
     }
 
-    if(soundtimer == 1) {
+    if(soundTimer == 1) {
         std::cout << "BEEP!\a" << std::endl;
     }
     nCycle++;
 }
 
 void Chip8::run() {
+    if(!memory->isFileLoaded())
+        return;
+    clear();
+    screen->clear();
+
+    paused = false;
+    alive = true;
     QElapsedTimer timer;
     uint64_t deltaTime = 0;
     uint64_t accuTime = 0;
 
     timer.start();
-    while(isRunning) {
+    while(alive) {
         deltaTime = timer.nsecsElapsed();
         timer.restart();
 
