@@ -4,6 +4,8 @@
 #include <iostream>
 #include <QImage>
 #include <QFileDialog>
+#include <qmainwindow.h>
+#include <qwidget.h>
 #include "chip8.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -22,39 +24,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionLoad_triggered() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choose ROM"), "", tr(" ROMs (*.ch8)"));
-    if(fileName.isEmpty()) {
-        std::cerr << "Could not open file: " << fileName.toStdString() << std::endl;
-        exit(2);
-        /*error("Could not open file: " + fileName.toStdString());*/
-    }
-    myChip8->loadFile(fileName.toStdString());
-    myChip8->getMemory().printProgram();
 
-    /*for(int i = 0; i < 256; ++i) {*/
-        /*chip8::emulateCycle();*/
-	    /*deltaTime = clock.restart();*/
-	    /**/
-	    /*if(deltaTime > sf::milliseconds(100))*/
-	    /*    deltaTime = sf::milliseconds(100);*/
-	    /**/
-	    /*accuTime += deltaTime;*/
-	    /*const sf::Time one_sixtieth_of_a_second = sf::microseconds(16670);*/
-	    /**/
-	    /*// Goal: 500Hz clock speed (500 cycle emulations per second) with 60Hz updates*/
-	    /*// for every 1/60s -> update timers*/
-	    /*for(; accuTime >= one_sixtieth_of_a_second; accuTime -= one_sixtieth_of_a_second) {*/
-	    /**/
-	    /*    myChip8->updateTimers();*/
-	    /**/
-	    /*    //  60*8 =(approx) 500*/
-	    /*    for(size_t i = 0; i < 8 && (!myChip8->getIsWaitingForKeyboardInput()); i++) {*/
-	    /*        myChip8->emulateCycle(event);*/
-	    /**/
-	    /*        if(myChip8->getDrawFlag())*/
-	    /*            myChip8->drawScreen(window);*/
-        /*if(chip8::getDrawFlag())*/
-            /*scene->addPixmap(QPixmap::fromImage(*Screen::image_));*/
-    /*}*/
+    if(!fileName.isEmpty()) {
+        myChip8->loadFile(fileName.toStdString());
+        myChip8->getMemory().printProgram();
+    }
 }
 
 void MainWindow::on_actionReload_triggered() {
@@ -75,5 +49,15 @@ void MainWindow::on_actionStepEmulator_triggered() {
 }
 
 void MainWindow::on_actionPauseEmulator_triggered() {
-    std::cout << "PAUSE" << std::endl;
+    myChip8->stop();
 }
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if(myChip8->getIsRunnig())
+    {
+        myChip8->stop();
+        myChip8->wait();
+    }
+    QMainWindow::closeEvent(event);
+}
+

@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <QMainWindow>
-#include <QGraphicsScene>
 #include "chip8.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -31,8 +30,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    std::shared_ptr<QGraphicsScene> scene;
     std::unique_ptr<Chip8> myChip8;
+
+    void closeEvent(QCloseEvent *event);
 };
 #endif // MAINWINDOW_H
 

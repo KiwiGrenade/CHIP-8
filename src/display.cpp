@@ -3,12 +3,12 @@
 #include <memory>
 
 QReadWriteLock Screen::pixelsLock_;
-std::shared_ptr<std::array<std::array<bool, Screen::xRes_>, Screen::yRes_>>Screen::pixels_;
+std::shared_ptr<std::array<std::array<bool, Screen::yRes_>, Screen::xRes_>> Screen::pixels_;
 
 Screen::Screen() {
     // set pixel position 
     pixelsLock_.lockForWrite();
-    pixels_ = std::make_shared<std::array<std::array<bool, xRes_>, yRes_>>();
+    pixels_ = std::make_shared<std::array<std::array<bool, yRes_>, xRes_>>();
     pixelsLock_.unlock();
 }
 
@@ -16,7 +16,7 @@ void Screen::clear() {
     pixelsLock_.lockForWrite();
     for(uint16_t i = 0; i < yRes_; ++i) {
         for(uint16_t j = 0; j < xRes_; ++j) {
-            (*pixels_)[i][j] = false;
+            (*pixels_)[j][i] = false;
         }
     }
     pixelsLock_.unlock();
@@ -24,7 +24,7 @@ void Screen::clear() {
 
 bool Screen::getPixel(const uint16_t& x, const uint16_t& y) {
     pixelsLock_.lockForRead();
-    bool pixel = (*pixels_)[y][x];
+    bool pixel = (*pixels_)[x][y];
     pixelsLock_.unlock();
     return pixel;
 }

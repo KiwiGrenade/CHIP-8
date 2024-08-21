@@ -17,6 +17,19 @@ Chip8::Chip8() {
     clear();
 }
 
+void Chip8::stop() { 
+    if(!isRunning) 
+        return;
+    isRunning = false;
+    wait();
+}
+
+void Chip8::setRunning() {
+    if(isRunning)
+        return;
+    isRunning = true;
+}
+
 void Chip8::clear() {
     isWaitingForKeyboardInput = false;
     nCycle = 0;
@@ -29,7 +42,7 @@ void Chip8::clear() {
     drawFlag = false;
 
     memory = std::make_shared<Memory>();
-    screen = std::make_unique<Screen>();
+    screen = std::make_shared<Screen>();
     
     screen->clear();
     std::fill(std::begin(stack), std::end(stack), 0);
@@ -39,6 +52,8 @@ void Chip8::clear() {
 }
 
 void Chip8::loadFile(const std::string& filename) {
+    memory->clear();
+
     pathToROM = filename;
     if(std::filesystem::exists(pathToROM) == false) {
         error("File " + pathToROM.string() + " does not exist!");
@@ -46,6 +61,7 @@ void Chip8::loadFile(const std::string& filename) {
 
     auto length = std::filesystem::file_size(pathToROM);
     std::ifstream inputFile(filename, std::ios_base::binary);
+
     if((length == 0) || (inputFile.is_open() == false) || inputFile.bad()) {
         error("Could not open file: " + pathToROM.string());
     }
@@ -297,45 +313,21 @@ void Chip8::run() {
     QElapsedTimer timer;
     uint64_t deltaTime = 0;
     uint64_t accuTime = 0;
-    uint64_t cyclesEmulated = 0;
 
     timer.start();
     while(isRunning) {
-        deltaTime = timer.nsecsElapsed() / 1000;
+        deltaTime = timer.nsecsElapsed();
         timer.restart();
 
-        if(deltaTime > 1000000)
-            deltaTime = 1000000;
+        if(deltaTime > 1000000000)
+            deltaTime = 1000000000;
 
         accuTime += deltaTime;
-        for(;accuTime >= 16670; accuTime -= 16670) {
-            for(size_t i = 0; i < 8; ++i, ++cyclesEmulated) {
+        for(;accuTime >= 16670000; accuTime -= 16670000) {
+            for(size_t i = 0; i < 8; ++i) {
                 emulateCycle();
             }
         }
-
-	    /*deltaTime = clock.restart();*/
-	    /**/
-	    /*if(deltaTime > sf::milliseconds(100))*/
-	    /*    deltaTime = sf::milliseconds(100);*/
-	    /**/
-	    /*accuTime += deltaTime;*/
-	    /*const sf::Time one_sixtieth_of_a_second = sf::microseconds(16670);*/
-	    /**/
-	    /*// Goal: 500Hz clock speed (500 cycle emulations per second) with 60Hz updates*/
-	    /*// for every 1/60s -> update timers*/
-	    /*for(; accuTime >= one_sixtieth_of_a_second; accuTime -= one_sixtieth_of_a_second) {*/
-	    /**/
-	    /*    myChip8->updateTimers();*/
-	    /**/
-	    /*    //  60*8 =(approx) 500*/
-	    /*    for(size_t i = 0; i < 8 && (!myChip8->getIsWaitingForKeyboardInput()); i++) {*/
-	    /*        myChip8->emulateCycle(event);*/
-	    /**/
-	    /*        if(myChip8->getDrawFlag())*/
-	    /*            myChip8->drawScreen(window);*/
-        /*if(chip8::getDrawFlag())*/
-            /*scene->addPixmap(QPixmap::fromImage(*Screen::image_));*/
     }
 }
 
