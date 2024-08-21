@@ -2,11 +2,15 @@
 #define CHIP8_HPP
 
 #include <cstdint>
+#include <set>
 #include "Screen.hpp"
 #include "Memory.hpp"
 #include <QThread>
+#include <QReadWriteLock>
+#include <QObject>
 
 class Chip8 : public QThread {
+    Q_OBJECT
 public:
     Chip8();
     ~Chip8() = default;
@@ -19,6 +23,8 @@ public:
     inline uint8_t getSoundTimer() { return soundTimer; }
     inline bool isPaused() { return paused; }
     inline bool isAlive() { return alive; }
+    void addKeyDown(const unsigned char& keyVal);
+    void removeKeyDown(const unsigned char& keyVal);
     
     void loadFile(const std::string& fileName);
     void emulateCycle();
@@ -49,6 +55,9 @@ private:
     bool        paused;
     bool        alive;
 
+    std::set<char> keysDown;
+    QReadWriteLock keysDownLock;
+
     std::string ROMFileName;
 
     std::shared_ptr<Memory> memory;
@@ -69,7 +78,8 @@ private:
         const uint16_t& kk,
         const uint16_t& VF,
         const uint16_t& nnn);
-
+signals:
+    void getKey();    
     /*const sf::Keyboard::Key charToKey(const uint8_t& x);*/
     /*const uint8_t getKeyToChar(const sf::Keyboard::Scancode& key);*/
 };
