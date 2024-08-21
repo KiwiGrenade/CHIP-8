@@ -4,9 +4,8 @@
 #include <cstdint>
 #include <memory>
 #include <QReadWriteLock>
-#include "component.hpp"
 
-struct Screen : Component {
+struct Screen {
     Screen();
     ~Screen() = default;
 

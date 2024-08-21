@@ -1,4 +1,4 @@
-#include "display.hpp"
+#include "Screen.hpp"
 #include <cstdint>
 #include <memory>
 
@@ -10,16 +10,15 @@ Screen::Screen() {
     pixelsLock_.lockForWrite();
     pixels_ = std::make_shared<std::array<std::array<bool, yRes_>, xRes_>>();
     pixelsLock_.unlock();
+    clear();
 }
 
 void Screen::clear() {
-    pixelsLock_.lockForWrite();
     for(uint16_t i = 0; i < yRes_; ++i) {
         for(uint16_t j = 0; j < xRes_; ++j) {
-            (*pixels_)[j][i] = false;
+            setPixel(j, i, false);
         }
     }
-    pixelsLock_.unlock();
 }
 
 bool Screen::getPixel(const uint16_t& x, const uint16_t& y) {

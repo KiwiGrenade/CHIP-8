@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <QMainWindow>
-#include "chip8.hpp"
+#include "Chip8.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

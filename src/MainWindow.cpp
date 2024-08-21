@@ -1,12 +1,12 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "MainWindow.hpp"
+#include "ui_MainWindow.h"
 #include <memory>
 #include <iostream>
 #include <QImage>
 #include <QFileDialog>
 #include <qmainwindow.h>
 #include <qwidget.h>
-#include "chip8.hpp"
+#include "Chip8.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,7 +36,6 @@ void MainWindow::on_actionReload_triggered() {
 }
 
 void MainWindow::on_actionStartEmulator_triggered() {
-    myChip8->setRunning();
     myChip8->start();
 }
 
@@ -49,11 +48,14 @@ void MainWindow::on_actionStepEmulator_triggered() {
 }
 
 void MainWindow::on_actionPauseEmulator_triggered() {
-    myChip8->stop();
+    if(myChip8->isPaused())
+        myChip8->unPause();
+    else
+        myChip8->pause();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if(myChip8->getIsRunnig())
+    if(myChip8->isAlive() && !myChip8->isPaused())
     {
         myChip8->stop();
         myChip8->wait();
