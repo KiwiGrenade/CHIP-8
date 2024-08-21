@@ -253,8 +253,17 @@ void Chip8::emulateCycle() {
                     V[x] = delayTimer;
                     break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
-                    pc -= 2;
-                    isWaitingForKeyboardInput = true;
+                    isWaitingForKeyboardInput = keysDown.empty();
+
+                    if(isWaitingForKeyboardInput) {
+                        keysDownLock.lockForRead();
+                        V[x] = *keysDown.begin();
+                        keysDownLock.unlock();
+                    }
+
+                    if(isWaitingForKeyboardInput)
+                        pc -= 2;
+
                     break;
                 case 0x0015: // 0xFX15: delayTimer = V[X]
                     delayTimer = V[x];
@@ -341,5 +350,17 @@ void Chip8::printData(
     std::cout   << "| cycle # | opcode | x | y | kk | nnn | n | VF | pc | sp" << std::endl << std::dec
                 << "| " << nCycle << " | " << std::hex << opcode << " | " << x << " | " << y 
                 << " | " << kk << " | " << nnn << " | " << n << " | " << VF << " | " << std::dec << pc-2 << " | " << sp << std::endl;
+}
+
+void Chip8::addKeyDown(const unsigned char& keyVal) {
+    keysDownLock.lockForWrite();
+    keysDown.insert(keyVal);
+    keysDownLock.unlock();
+}
+
+void Chip8::removeKeyDown(const unsigned char& keyVal) {
+    keysDownLock.lockForWrite();
+    keysDown.erase(keyVal);
+    keysDownLock.unlock();
 }
 

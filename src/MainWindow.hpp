@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QMainWindow>
+#include <QKeyEvent>
 #include "Chip8.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -29,10 +30,13 @@ private slots:
     void on_actionPauseEmulator_triggered();
 
 private:
+    void keyReleaseEvent(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent* event);
     Ui::MainWindow *ui;
     std::unique_ptr<Chip8> myChip8;
+    std::unique_ptr<std::map<char, unsigned char>> keyMap;
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent* event);
 };
 #endif // MAINWINDOW_H
 

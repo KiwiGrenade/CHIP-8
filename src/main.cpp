@@ -12,7 +12,7 @@ bool Options::debug = false;
 
 int main(int argc, char *argv[])
 {
-    Options::verbose = true;
+    /*Options::verbose = true;*/
     QApplication a(argc, argv);
     auto w = std::make_unique<MainWindow>();
     w->show();
