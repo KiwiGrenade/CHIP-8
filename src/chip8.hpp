@@ -18,16 +18,8 @@ public:
     inline uint8_t getDelayTimer() { return delaytimer; }
     inline uint8_t getSoundTimer() { return soundtimer; }
     inline bool getIsRunnig() { return isRunning; }
-    inline void stop() { 
-        if(!isRunning) 
-            return;
-        isRunning = false; 
-    }
-    inline void setRunning() {
-        if(isRunning)
-            return;
-        isRunning = true;
-    }
+    void stop();
+    void setRunning();
     void loadFile(const std::string& filename);
     void emulateCycle();
     void clear();
@@ -52,9 +44,8 @@ private:
     std::filesystem::path pathToROM;
 
     std::shared_ptr<Memory> memory;
-    std::unique_ptr<Screen> screen;
+    std::shared_ptr<Screen> screen;
 
-        /*void drawScreen(MainWindow& window);*/
         /*void loadKeyToV(const sf::Event& event);*/
     void updateTimers();
     void unknownOpcode(const uint16_t& opcode);

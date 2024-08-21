@@ -19,7 +19,6 @@ protected:
     QTimer repaintTimer;
 private:
     constexpr static int timerInterval_ms = 17;
-    bool state;
 };
 
 #endif // !EMULATION_SCREEN_WIDGET_HPP
