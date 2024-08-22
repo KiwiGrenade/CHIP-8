@@ -23,6 +23,7 @@ public:
     inline uint8_t getSoundTimer() { return soundTimer; }
     inline bool isPaused() { return paused; }
     inline bool isAlive() { return alive; }
+    static void updateTimers();
     void addKeyDown(const unsigned char& keyVal);
     void removeKeyDown(const unsigned char& keyVal);
     
@@ -46,14 +47,17 @@ private:
     uint16_t    I;       // memory pointer
     uint16_t    sp;      // stack pointer
     uint8_t     V[16];    // 16 * 1 byte registers (VF is carry flag)
-    uint8_t     soundTimer;
-    uint8_t     delayTimer;
     uint16_t    stack[16];
     uint8_t     key[16];
 
-    bool        isWaitingForKeyboardInput;
-    bool        paused;
-    bool        alive;
+    static uint8_t         soundTimer;
+    static QReadWriteLock  soundTimerLock;
+    static uint8_t         delayTimer;
+    static QReadWriteLock  delayTimerLock;
+
+    static bool        isWaitingForKeyboardInput;
+    static bool        paused;
+    static bool        alive;
 
     std::set<char> keysDown;
     QReadWriteLock keysDownLock;
@@ -64,7 +68,6 @@ private:
     std::shared_ptr<Screen> screen;
 
         /*void loadKeyToV(const sf::Event& event);*/
-    void updateTimers();
     void unknownOpcode(const uint16_t& opcode);
     void drawSprite(
         const uint16_t& n,

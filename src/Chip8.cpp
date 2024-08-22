@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
+#include <qreadwritelock.h>
 #include <string>
 #include <iostream>
 #include <time.h>
@@ -9,12 +10,21 @@
 #include "Chip8.hpp"
 #include "utils.hpp"
 
+uint8_t         Chip8::soundTimer;
+QReadWriteLock  Chip8::soundTimerLock;
+uint8_t         Chip8::delayTimer;
+QReadWriteLock  Chip8::delayTimerLock;
+
+bool        Chip8::isWaitingForKeyboardInput;
+bool        Chip8::paused;
+bool        Chip8::alive;
+
 Chip8::Chip8() : 
-    paused(false),
-    alive(false),
     memory(std::make_shared<Memory>()),
     screen(std::make_shared<Screen>())
     {
+    paused = false;
+    alive = false;
     std::srand(time(nullptr));
     clear();
 }
@@ -48,12 +58,17 @@ void Chip8::clear() {
     isWaitingForKeyboardInput = false;
     nCycle = 0;
     pc = Memory::programBegin;
-    soundTimer = 0;
-    delayTimer = 0;
     opcode = 0;
     I = 0;
     sp = 0;
     drawFlag = false;
+
+    soundTimerLock.lockForWrite();
+    soundTimer = 0;
+    soundTimerLock.unlock();
+    delayTimerLock.lockForWrite();
+    delayTimer = 0;
+    delayTimerLock.unlock();
 
     std::fill(std::begin(stack), std::end(stack), 0);
     std::fill(std::begin(V), std::end(V), 0);
@@ -64,10 +79,16 @@ void Chip8::clear() {
 void Chip8::updateTimers() {
     if (paused || !alive)
         return;
-    if(delayTimer > 0)
-        delayTimer--;
-    if(soundTimer > 0)
+    if(soundTimer > 0) {
+        soundTimerLock.lockForWrite();
         soundTimer--;
+        soundTimerLock.unlock();
+    }
+    if(delayTimer > 0) {
+        delayTimerLock.lockForWrite();
+        delayTimer--;
+        delayTimerLock.unlock();
+    }
 }
 
 void Chip8::drawSprite(
@@ -235,11 +256,11 @@ void Chip8::emulateCycle() {
         case 0xE000:
             switch(kk){
                 case 0x009E: // 0xEX9E: Skip next instr. if key with the value of V[X] is pressed
-                    /*if(sf::Keyboard::isKeyPressed(charToKey(x)))*/
+                    if(keysDown.contains(V[x]))
                         pc += 2;
                     break;
                 case 0x00A1: // 0xEXA1: Skip next instr. if key with the value of V[X] is NOT pressed
-                    /*if(!sf::Keyboard::isKeyPressed(charToKey(x)))*/
+                    if(!keysDown.contains(V[x]))
                         pc += 2;
                     break;
                 default:
@@ -250,26 +271,31 @@ void Chip8::emulateCycle() {
         case 0xF000:
             switch(opcode & 0x00FF){
                 case 0x0007: // 0xFX07: V[X] = delayTimer
+                    delayTimerLock.lockForRead();
                     V[x] = delayTimer;
+                    delayTimerLock.unlock();
                     break;
                 case 0x000A: // 0xFX0A: Wait for a key press, store the value of the key in V[X]
                     isWaitingForKeyboardInput = keysDown.empty();
 
                     if(isWaitingForKeyboardInput) {
+                        pc -= 2;
+                    }
+                    else {
                         keysDownLock.lockForRead();
                         V[x] = *keysDown.begin();
                         keysDownLock.unlock();
                     }
-
-                    if(isWaitingForKeyboardInput)
-                        pc -= 2;
-
                     break;
                 case 0x0015: // 0xFX15: delayTimer = V[X]
+                    delayTimerLock.lockForWrite();
                     delayTimer = V[x];
+                    delayTimerLock.unlock();
                     break;
                 case 0x0018: // 0xFX18: soundTimer = V[X]
+                    soundTimerLock.lockForWrite();
                     soundTimer = V[x];
+                    delayTimerLock.unlock();
                     break;
                 case 0x001E: // 0xFX1E: I = I + V[X]
                     I = I + V[x];
@@ -299,10 +325,13 @@ void Chip8::emulateCycle() {
             unknownOpcode(opcode);
             break; 
     }
-
+    
+    soundTimerLock.lockForRead();
     if(soundTimer == 1) {
         std::cout << "BEEP!\a" << std::endl;
     }
+    soundTimerLock.unlock();
+
     nCycle++;
 }
 

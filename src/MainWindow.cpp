@@ -72,20 +72,22 @@ void MainWindow::on_actionPauseEmulator_triggered() {
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
-    if(event->text().size() > 1)
+    if(event->text().size() >= 1)
     {
         char key = event->text().at(0).toLatin1();
-        if(keyMap->contains(key))
+        if(keyMap->contains(key)) {
             myChip8->addKeyDown((*keyMap)[key]);
+        }
     }
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent* event) {
-    if(event->text().size() > 1)
+    if(event->text().size() >= 1)
     {
         char key = event->text().at(0).toLatin1();
-        if(keyMap->contains(key))
+        if(keyMap->contains(key)) {
             myChip8->removeKeyDown((*keyMap)[key]);
+        }
     }
 }
 

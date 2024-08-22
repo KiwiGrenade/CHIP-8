@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <QPainter>
 #include <QWidget>
+#include "Chip8.hpp"
 
 EmulationScreenWidget::EmulationScreenWidget(QWidget *parent) :
     QWidget(parent) {
@@ -36,5 +37,6 @@ void EmulationScreenWidget::paintEvent(QPaintEvent * event) {
 }
 
 void EmulationScreenWidget::forceRepaint() {
+    Chip8::updateTimers();
     repaint();
 }
