@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include <memory>
+#include <vector>
+
 #include "Memory.hpp"
 #include "utils.hpp"
 
@@ -69,5 +70,4 @@ const uint16_t Memory::getOpcode(const uint16_t& pc) {
 
 uint8_t& Memory::operator[](const std::size_t idx) { return (*arr)[idx]; }
 const uint8_t& Memory::operator[](const std::size_t idx) const { return (*arr)[idx]; }
-
 

@@ -1,7 +1,9 @@
 #include "EmulationScreenWidget.hpp"
+
 #include <cstdint>
+
 #include <QPainter>
-#include <QWidget>
+
 #include "Chip8.hpp"
 
 EmulationScreenWidget::EmulationScreenWidget(QWidget *parent) :

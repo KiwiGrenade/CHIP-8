@@ -3,7 +3,6 @@
 
 #include <array>
 #include <memory>
-#include <vector>
 #include <cstdint>
 #include <string>
 
@@ -59,3 +58,4 @@ struct Memory {
 
 
 #endif // MEMORY_HPP
+

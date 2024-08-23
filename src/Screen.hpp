@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <memory>
+
 #include <QReadWriteLock>
 
 struct Screen {

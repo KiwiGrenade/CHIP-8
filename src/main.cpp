@@ -1,14 +1,7 @@
 #include <memory>
-/*#include <string>*/
 #include <QApplication>
-#include <QWidget>
-#include <QGraphicsView>
-#include "utils.hpp"
-#include "MainWindow.hpp"
-#include "Chip8.hpp"
 
-bool Options::verbose = false;
-bool Options::debug = false;
+#include "MainWindow.hpp"
 
 int main(int argc, char *argv[])
 {

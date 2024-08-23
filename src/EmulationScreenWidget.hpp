@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTimer>
+
 #include "Screen.hpp"
 
 class EmulationScreenWidget : public QWidget, public Screen {

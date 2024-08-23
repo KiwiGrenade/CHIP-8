@@ -2,8 +2,10 @@
 #define MAINWINDOW_H
 
 #include <memory>
+
 #include <QMainWindow>
 #include <QKeyEvent>
+
 #include "Chip8.hpp"
 
 QT_BEGIN_NAMESPACE

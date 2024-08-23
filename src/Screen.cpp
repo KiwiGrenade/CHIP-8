@@ -1,4 +1,5 @@
 #include "Screen.hpp"
+
 #include <cstdint>
 #include <memory>
 
@@ -33,5 +34,4 @@ void Screen::setPixel(const uint16_t& x, const uint16_t& y, const bool state) {
     (*pixels_)[x][y] = state;
     pixelsLock_.unlock();
 }
-
 

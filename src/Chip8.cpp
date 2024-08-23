@@ -1,13 +1,14 @@
+#include "Chip8.hpp"
+
 #include <cstdio>
 #include <cstdlib>
-#include <memory>
-#include <qreadwritelock.h>
-#include <string>
 #include <iostream>
-#include <time.h>
+#include <memory>
+#include <string>
+
 #include <QThread>
 #include <QElapsedTimer>
-#include "Chip8.hpp"
+
 #include "utils.hpp"
 
 uint8_t         Chip8::soundTimer;
@@ -139,8 +140,8 @@ void Chip8::emulateCycle() {
     uint8_t   tempVF  =    0;
     lastX = x;
 
-    if(Options::verbose)
-        printData(x, y, n, kk, VF, nnn);
+    /*if(Options::verbose)*/
+    /*    printData(x, y, n, kk, VF, nnn);*/
     
     switch(opcode & 0xF000) { // check first 4 bits
         case 0x0000:

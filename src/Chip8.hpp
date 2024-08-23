@@ -3,11 +3,12 @@
 
 #include <cstdint>
 #include <set>
-#include "Screen.hpp"
-#include "Memory.hpp"
+
 #include <QThread>
 #include <QReadWriteLock>
-#include <QObject>
+
+#include "Screen.hpp"
+#include "Memory.hpp"
 
 class Chip8 : public QThread {
     Q_OBJECT

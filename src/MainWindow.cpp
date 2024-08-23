@@ -1,10 +1,11 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
+
 #include <memory>
-#include <iostream>
+
 #include <QImage>
 #include <QFileDialog>
-#include <qtpreprocessorsupport.h>
+
 #include "Chip8.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
