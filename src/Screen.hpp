@@ -19,9 +19,11 @@ struct Screen {
     static constexpr uint16_t   pixelSize_ = 10;
 
     static QReadWriteLock pixelsLock_;
-    static std::shared_ptr<
-        std::array<std::array<bool, Screen::yRes_>, Screen::xRes_>>
-    pixels_;
+    static  std::shared_ptr<
+                std::array<
+                    std::array<bool, Screen::yRes_>,
+                Screen::xRes_>>
+            pixels_;
 };
 
 #endif // DISPLAY_HPP

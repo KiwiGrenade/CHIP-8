@@ -30,12 +30,12 @@ void EmulationScreenWidget::paintEvent(QPaintEvent * event) {
     uint32_t yOffset = height() % yRes / 2;
     
     for(uint16_t y = 0; y < yRes; ++y) {
-        for(uint16_t x = 0; x < xRes; ++x) {
-            if(!Screen::getPixel(x, y))
-                // TODO: Render pixel as a class (derived from rectangle)?
-                painter.fillRect(pixelWidth * x + xOffset, pixelHeight * y + yOffset, pixelWidth, pixelHeight, Qt::black);
+            for(uint16_t x = 0; x < xRes; ++x) {
+                if(!Screen::getPixel(x, y))
+                    // TODO: Render pixel as a class (derived from rectangle)?
+                    painter.fillRect(pixelWidth * x + xOffset, pixelHeight * y + yOffset, pixelWidth, pixelHeight, Qt::black);
+            }
         }
-    }
 }
 
 void EmulationScreenWidget::forceRepaint() {

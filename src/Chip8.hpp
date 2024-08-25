@@ -18,7 +18,7 @@ public:
 
     inline Memory& getMemory() { return *memory; }
     inline Screen& getScreen() { return *screen; }
-    inline bool getDrawFlag() { return drawFlag; }
+    static inline bool getDrawFlag() { return drawFlag; }
     inline bool getIsWaitingForKeyboardInput() { return isWaitingForKeyboardInput; }
     inline uint8_t getDelayTimer() { return delayTimer; }
     inline uint8_t getSoundTimer() { return soundTimer; }
@@ -41,7 +41,6 @@ public:
  
 private: 
     size_t      nCycle;
-    bool        drawFlag;
     uint16_t    lastX;
     uint16_t    pc;      // program counter
     uint16_t    opcode;  // current opcode (opcodes are 2 bytes)
@@ -50,6 +49,7 @@ private:
     uint8_t     V[16];    // 16 * 1 byte registers (VF is carry flag)
     uint16_t    stack[16];
     uint8_t     key[16];
+    static bool drawFlag;
 
     static uint8_t         soundTimer;
     static QReadWriteLock  soundTimerLock;
@@ -68,7 +68,6 @@ private:
     std::shared_ptr<Memory> memory;
     std::shared_ptr<Screen> screen;
 
-        /*void loadKeyToV(const sf::Event& event);*/
     void unknownOpcode(const uint16_t& opcode);
     void drawSprite(
         const uint16_t& n,
@@ -82,10 +81,6 @@ private:
         const uint16_t& kk,
         const uint16_t& VF,
         const uint16_t& nnn);
-signals:
-    void getKey();    
-    /*const sf::Keyboard::Key charToKey(const uint8_t& x);*/
-    /*const uint8_t getKeyToChar(const sf::Keyboard::Scancode& key);*/
 };
 
 #endif //CHIP8_HPP

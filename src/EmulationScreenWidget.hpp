@@ -18,6 +18,7 @@ protected:
     void paintEvent(QPaintEvent* event);
 
     QTimer repaintTimer;
+
 private:
     constexpr static int timerInterval_ms = 17;
 };

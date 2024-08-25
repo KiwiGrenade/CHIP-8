@@ -9,7 +9,7 @@
 #include <QThread>
 #include <QElapsedTimer>
 
-#include "utils.hpp"
+bool Chip8::drawFlag;
 
 uint8_t         Chip8::soundTimer;
 QReadWriteLock  Chip8::soundTimerLock;
@@ -19,6 +19,7 @@ QReadWriteLock  Chip8::delayTimerLock;
 bool        Chip8::isWaitingForKeyboardInput;
 bool        Chip8::paused;
 bool        Chip8::alive;
+
 
 Chip8::Chip8() : 
     memory(std::make_shared<Memory>()),
@@ -73,8 +74,6 @@ void Chip8::clear() {
 
     std::fill(std::begin(stack), std::end(stack), 0);
     std::fill(std::begin(V), std::end(V), 0);
-   
-    memory->loadFontset();
 }
 
 void Chip8::updateTimers() {

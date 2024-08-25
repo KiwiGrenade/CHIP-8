@@ -15,11 +15,13 @@ Screen::Screen() {
 }
 
 void Screen::clear() {
+    pixelsLock_.lockForRead();
     for(uint16_t i = 0; i < yRes_; ++i) {
         for(uint16_t j = 0; j < xRes_; ++j) {
-            setPixel(j, i, false);
+            (*pixels_)[j][i] = false;
         }
     }
+    pixelsLock_.unlock();
 }
 
 bool Screen::getPixel(const uint16_t& x, const uint16_t& y) {
