@@ -36,3 +36,9 @@ Let me know if you want to see some actual code on all this :D
 
 As for key repeat, I'd say not to bother if you plan to implement it from the interpreter's side of things. It would take a long time to figure out how to tie in timers with your input variables and ensure there's no weird behaviors. It's eldritch enough working around the system to get flawless on-press behavior, and rom makers could implement input repeat on their own as part of the rom program itself if they wanted it. Typically they utilize the EX9E and EXA1 if an input needs to be consistent or repeated, or when non-locking input is required (like in cases where animations need to continue running while input is awaited).
 ```
+## Translating C++ + Qt with Emscripten and CMake
+1. [ ] Install Qt
+2. [ ] Install Emscripten (add the source command to ~/.bashrc)
+3. [ ] Install Ninja
+4. [ ] Follow the instructions [here](https://doc.qt.io/qt-6/wasm.html).
+You have to unpack qt-everywhere int a folder with user acces. !DO NOT USE SUDO!. If you've picked a "Qt for Desktops" package you need to install module "RemoteObject" manually. You can do that with <Qt_root>/Maintanance 
