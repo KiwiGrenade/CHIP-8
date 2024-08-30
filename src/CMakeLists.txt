@@ -1,10 +1,10 @@
 qt_add_executable(emulator main.cpp)
 
-qt_add_library(screen SHARED Screen.cpp)
-qt_add_library(memory SHARED Memory.cpp)
-qt_add_library(chip8 SHARED Chip8.cpp)
-qt_add_library(widget SHARED EmulationScreenWidget.cpp)
-qt_add_library(main_window SHARED MainWindow.cpp MainWindow.ui)
+qt_add_library(screen STATIC Screen.cpp)
+qt_add_library(memory STATIC Memory.cpp)
+qt_add_library(chip8 STATIC Chip8.cpp)
+qt_add_library(widget STATIC EmulationScreenWidget.cpp)
+qt_add_library(main_window STATIC MainWindow.cpp MainWindow.ui)
 
 target_link_libraries(screen PRIVATE Qt6::Core)
 target_link_libraries(chip8 PRIVATE Qt6::Core screen memory)
