@@ -2,9 +2,11 @@
 #include "ui_MainWindow.h"
 
 #include <memory>
+#include <iostream>
 
 #include <QImage>
 #include <QFileDialog>
+#include <qobject.h>
 
 #include "Chip8.hpp"
 
@@ -23,12 +25,18 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_actionLoad_triggered() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choose ROM"), "", tr(" ROMs (*.ch8)"));
-
-    if(!fileName.isEmpty()) {
-        myChip8->loadFile(fileName.toStdString());
+    auto fileContentReady = [this](const QString& fileName, const QByteArray& fileContent) {
+        if(fileName.isEmpty())
+        {
+            //TODO: Replace this with error() from utils.hpp
+            std::cout << "No file was selected! Exiting!" << std::endl;
+            exit(1);
+        }
+        myChip8->loadFile(fileContent);
         myChip8->getMemory().printProgram();
-    }
+    };
+
+    QFileDialog::getOpenFileContent(" ROMs (*.ch8)", fileContentReady);
 }
 
 void MainWindow::on_actionReload_triggered() {

@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <string>
 
+#include <QByteArray>
+
 /* CHIP-8 has 4KB memory (4096 bytes), from location 0x000 (0) to 0xFFF (4095):
      * + 0x000 (0) to 0x1FF (511) - CHIP-8 interpreter
      * + 0x200 (512) to 0xFFF (4095) - program memory (ETI 660 programs start at 0x600 (1536))*/
@@ -17,8 +19,7 @@ public:
 
     void clear();
     void printProgram();
-    void loadFile(const std::string& fileName);
-    inline void reloadFile() { loadFile(prevFilename); }
+    void loadFile(const QByteArray& fileContent);
     inline bool isFileLoaded() { return fileIsLoaded; }
     const uint16_t getOpcode(const uint16_t& pc);
     inline const uint8_t& operator[](const uint16_t idx) const { return (*arr)[idx]; }

@@ -8,6 +8,7 @@ qt_add_library(main_window STATIC MainWindow.cpp MainWindow.ui)
 
 target_compile_options(memory PRIVATE -pthread)
 
+target_link_libraries(memory PRIVATE Qt6::Core)
 target_link_libraries(screen PRIVATE Qt6::Core)
 target_link_libraries(chip8 PRIVATE Qt6::Core screen memory)
 target_link_libraries(widget PRIVATE Qt6::Widgets)
