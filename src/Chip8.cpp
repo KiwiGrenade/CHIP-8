@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <qstringview.h>
 #include <string>
 
 #include <QThread>
@@ -31,14 +32,14 @@ Chip8::Chip8() :
     clear();
 }
 
-void Chip8::loadFile(const std::string& fileName) {
-    memory->loadFile(fileName);
+void Chip8::loadFile(const QByteArray& fileContent) {
+    memory->loadFile(fileContent);
 }
 
 void Chip8::restart() {
     paused = false;
+    alive = false;
     clear();
-    memory->reloadFile();
 }
 
 void Chip8::pause() { 

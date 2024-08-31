@@ -1,13 +1,11 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
-#include <fstream>
-#include <filesystem>
 #include <memory>
-#include <vector>
+#include <qbytearrayalgorithms.h>
+#include <qstringview.h>
 
 #include "Memory.hpp"
-#include "utils.hpp"
 
 uint16_t Memory::programSize;
 
@@ -24,31 +22,15 @@ void Memory::clear() {
     fileIsLoaded = false;
 }
 
-void Memory::loadFile(const std::string& fileName) {
+void Memory::loadFile(const QByteArray& fileContent) {
     clear();
 
-    if(!std::filesystem::exists(fileName)) {
-        error("File " + fileName + " does not exist!");
+    programSize = fileContent.size() - 1;
+
+    for(uint16_t i = 0; i < programSize; ++i) {
+        arr->at(i + programBegin) = fileContent.at(i);
     }
 
-    prevFilename = fileName;
-
-    std::ifstream inputFile(fileName, std::ios_base::binary);
-
-    if(!inputFile.good()) {
-        error("Could not open file: " + fileName);
-    }
-
-    // read file to a buffer
-    auto length = std::filesystem::file_size(fileName);
-    auto buffer = std::make_unique<std::vector<uint8_t>>(length);
-    inputFile.read(reinterpret_cast<char*>(buffer->data()), length);
-    inputFile.close();
-
-    std::copy(buffer->begin(), buffer->end(), arr->begin() + programBegin);
-
-    /*programSize = buffer->size();*/
-    programSize = length;
     fileIsLoaded = true;
 }
 

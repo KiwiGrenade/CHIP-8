@@ -1,4 +1,5 @@
 #include <memory>
+
 #include <QApplication>
 
 #include "MainWindow.hpp"

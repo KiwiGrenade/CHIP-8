@@ -28,7 +28,7 @@ public:
     void addKeyDown(const unsigned char& keyVal);
     void removeKeyDown(const unsigned char& keyVal);
     
-    void loadFile(const std::string& fileName);
+    void loadFile(const QByteArray& fileContent);
     void emulateCycle();
     void clear();
     
